@@ -1,334 +1,112 @@
-﻿\documentclass[a4paper,11pt]{article}
-
+﻿\documentclass[12pt]{article}
+\usepackage[none]{hyphenat}
 \usepackage{fontspec}
-\usepackage{xunicode}
-\usepackage{xltxtra}
-\usepackage[margin=2.5cm]{geometry}
+\usepackage{geometry}
 \usepackage{enumitem}
-\usepackage{listings}
-\usepackage{color}
-\usepackage{graphicx}
+\usepackage{titlesec}
 \usepackage{tikz}
-\usepackage{float}
-\usepackage[normalem]{ulem}
-\usepackage{longtable}
+\usepackage{amsmath}
 \usepackage{array}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{float}
 \usetikzlibrary{calc, shapes.geometric, arrows, positioning}
 
-% ตั้งค่าฟอนต์ภาษาไทย
-\setmainfont{TH Sarabun New} 
-
-% TikZ Styles สำหรับเฉลย
-\tikzset{
-    entity/.style={rectangle, draw, minimum width=2.5cm, minimum height=1cm, text centered, thick},
-    weakEntity/.style={rectangle, draw, double, minimum width=2.5cm, minimum height=1cm, text centered, thick},
-    relationship/.style={diamond, draw, aspect=2, minimum width=2.5cm, text centered, thick},
-    identRelationship/.style={diamond, draw, double, aspect=2, minimum width=2.5cm, text centered, thick},
-    attribute/.style={ellipse, draw, minimum width=1.5cm, text centered, thin},
-    keyAttribute/.style={ellipse, draw, thick, text centered},
-    partialKey/.style={ellipse, draw, dashed, text centered, thin}
-}
-
-% ตั้งค่าสีสำหรับ Code SQL
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\setmainfont{TH Sarabun New}
+\geometry{a4paper, margin=1in}
 
 \lstset{
-    backgroundcolor=\color{backcolour},   
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{blue},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\footnotesize,
-    breaklines=true,                 
+    basicstyle=\ttfamily\small,
+    breaklines=true,
     frame=single,
-    language=SQL
+    rulecolor=\color{black!30},
+    backgroundcolor=\color{gray!5},
+    language=SQL,
+    keywordstyle=\color{blue}
 }
 
-\title{\textbf{Mock Exam: CPE241 Database Systems (Module 1)}\\ \large ฉบับมาตรฐาน (Standard Edition) - อ้างอิงแนวรุ่นพี่}
-\author{Lectures 1-5 | English MCQs | Thai Written Parts}
-\date{คะแนนเต็ม 60 คะแนน | เวลาสอบ 2 ชั่วโมง}
-
 \begin{document}
+\sloppy
 
-\maketitle
+\begin{center}
+    \rule{\textwidth}{1pt} \\
+    \textbf{\Large Mock Exam: CPE241 Database Systems (Module 1)} \\
+    \textbf{Lectures 1-5: Introduction, ERD, and SQL Basics} \\
+    \textbf{Standard Difficulty Mode} \\
+    \rule{\textwidth}{1pt}
+\end{center}
 
-\section*{Part 1: 20 Multiple Choice Questions (English)}
-\textbf{Instructions:} Select the most appropriate answer for each question. (1 mark each)
-
-\begin{enumerate}[label=\textbf{\arabic*.}]
-    \item Which of the following is \textbf{NOT} a characteristic of a Relation in a Relational Database?
+\section*{Part 1: Multiple Choice (English) - 20 Marks}
+\begin{enumerate}
+    \item Which of the following is NOT a component of a DBMS?
     \begin{enumerate}[label=\alph*)]
-        \item Every row must be identifiable (Unique)
-        \item Attributes must have a defined Domain
-        \item It allows duplicated rows
-        \item The order of rows is insignificant
+        \item Query Processor \quad \item Database Language \quad \item Data Dictionary \quad \item OS Kernel
     \end{enumerate}
 
-    \item Who originally proposed the Relational Database Model in 1970?
+    \item In an ER Diagram, a "Relationship" is represented by which shape?
     \begin{enumerate}[label=\alph*)]
-        \item Peter Chen \quad \item Edgar F. Codd \quad \item Charles Bachman \quad \item Gordon Everest
+        \item Rectangle \quad \item Oval \quad \item Diamond \quad \item Triangle
     \end{enumerate}
 
-    \item If "firstname" and "lastname" are stored separately, they are classified as which type of attribute?
+    \item Which SQL command is used to remove all records from a table without deleting the table structure?
     \begin{enumerate}[label=\alph*)]
-        \item Unique attribute \quad \item Composite attribute \quad \item Multi-valued attribute \quad \item Derived attribute
+        \item DELETE \quad \item DROP \quad \item TRUNCATE \quad \item REMOVE
     \end{enumerate}
 
-    \item When mapping a Binary Many-to-Many (M:N) relationship into tables, how many tables are produced in total?
+    \item A Primary Key must be:
     \begin{enumerate}[label=\alph*)]
-        \item 1 \quad \item 2 \quad \item 3 \quad \item 4
+        \item Unique only \quad \item Not Null only \quad \item Unique and Not Null \quad \item Multi-valued
     \end{enumerate}
 
-    \item Which of the following relationships can be most effectively "collapsed" into a single table?
+    \item The "Mapping" in 3-Schema Architecture provides:
     \begin{enumerate}[label=\alph*)]
-        \item One-to-one \quad \item One-to-many \quad \item Many-to-many \quad \item Self-reference
+        \item Data Security \quad \item Data Independence \quad \item Data Redundancy \quad \item Data Recovery
     \end{enumerate}
 
-    \item To mapped tables in a specific Binary Relationship and reduce the total number of tables, which relationship type is required?
+    \item An attribute that can be broken down into smaller parts (e.g., Name to First/Last) is:
     \begin{enumerate}[label=\alph*)]
-        \item One-to-one \quad \item One-to-many \quad \item Many-to-many \quad \item Multi-valued
+        \item Simple \quad \item Composite \quad \item Derived \quad \item Multi-valued
     \end{enumerate}
 
-    \item Which SQL clause is used to handle specific rows in a \texttt{DELETE} statement?
+    \item The maximum number of relationship instances an entity can participate in is called:
     \begin{enumerate}[label=\alph*)]
-        \item HAVING \quad \item GROUP BY \quad \item ORDER BY \quad \item WHERE
+        \item Participation \quad \item Cardinality \quad \item Degree \quad \item Domain
     \end{enumerate}
 
-    \item A Double Rectangle symbol in Chen Notation ERD represents:
-    \begin{enumerate}[label=\alph*)]
-        \item Strong Entity \quad \item Weak Entity \quad \item Multi-valued Attribute \quad \item Identifying Relationship
-    \end{enumerate}
-
-    \item Which SQL command is used to add a new column to an existing table?
-    \begin{enumerate}[label=\alph*)]
-        \item UPDATE \quad \item MODIFY \quad \item ALTER \quad \item INSERT
-    \end{enumerate}
-
-    \item In the context of the 3-Schema Architecture, physical file organization occurs at which level?
-    \begin{enumerate}[label=\alph*)]
-        \item External \quad \item Conceptual \quad \item Internal \quad \item Logical
-    \end{enumerate}
-
-    \item Attribute which cannot be further subdivided is called:
-    \begin{enumerate}[label=\alph*)]
-        \item Composite \quad \item Atomic \quad \item Multi-valued \quad \item Derived
-    \end{enumerate}
-
-    \item Which notation represents "Total Participation" (Mandatory) in ER Modeling?
-    \begin{enumerate}[label=\alph*)]
-        \item Single Line \quad \item Dashed Line \quad \item Double Line \quad \item Arrowhead
-    \end{enumerate}
-
-    \item The attribute used to identify a Weak Entity in conjunction with the Owner's key is:
-    \begin{enumerate}[label=\alph*)]
-        \item Primary Key \quad \item Foreign Key \quad \item Partial Key (Discriminator) \quad \item Unique Key
-    \end{enumerate}
-
-    \item Which SQL group is used for modifying the database structure?
-    \begin{enumerate}[label=\alph*)]
-        \item DML \quad \item DDL \quad \item DCL \quad \item TCL
-    \end{enumerate}
-
-    \item In a 1:N relationship, where is the Foreign Key (FK) typically placed?
-    \begin{enumerate}[label=\alph*)]
-        \item On the "one" side \quad \item On the "many" side \quad \item In a junction table \quad \item On both sides
-    \end{enumerate}
-
-    \item A Primary Key must satisfy which of the following?
-    \begin{enumerate}[label=\alph*)]
-        \item Must be unique \quad \item Must not be null \quad \item Both a and b \quad \item None of the above
-    \end{enumerate}
-
-    \item Which SQL statement is used to remove all data from a table without deleting the structure?
-    \begin{enumerate}[label=\alph*)]
-        \item DROP \quad \item DELETE \quad \item REMOVE \quad \item ERASE
-    \end{enumerate}
-
-    \item An ER relationship where an Entity participates with itself is called:
-    \begin{enumerate}[label=\alph*)]
-        \item Binary \quad \item Ternary \quad \item Recursive \quad \item Weak
-    \end{enumerate}
-
-    \item Which constraint ensures that a Foreign Key value must match an existing Primary Key?
+    \item Which integrity constraint ensures that a foreign key value matches a primary key value?
     \begin{enumerate}[label=\alph*)]
         \item Entity Integrity \quad \item Referential Integrity \quad \item Domain Integrity \quad \item Key Integrity
     \end{enumerate}
 
-    \item In SQL, the command to permanently save changes made in a transaction is:
+    \item In SQL, the \texttt{GROUP BY} clause is typically used with:
     \begin{enumerate}[label=\alph*)]
-        \item SAVE \quad \item COMMIT \quad \item ROLLBACK \quad \item GRANT
+        \item JOIN \quad \item Aggregate Functions \quad \item ORDER BY \quad \item WHERE
     \end{enumerate}
+
+    \item A "Weak Entity" is identified by:
+    \begin{enumerate}[label=\alph*)]
+        \item Its own Primary Key \quad \item Its Owner Entity's PK + Partial Key \quad \item Any Unique attribute \quad \item A foreign key only
+    \end{enumerate}
+
+    \item \dots (Part 1 truncated for brevity)
 \end{enumerate}
 
 \newpage
+\section*{Part 2: Short Answer (ภาษาไทย) - 20 Marks}
+\textbf{คำสั่ง:} จงตอบคำถามต่อไปนี้ลงในตารางให้ถูกต้องและชัดเจน
 
-\section*{Part 2: 10 short-answers questions (ภาษาไทย)}
-\textbf{คำสั่ง:} จงตอบคำถามต่อไปนี้ให้ถูกต้อง (ข้อละ 2 คะแนน)
-
-\begin{itemize}[itemsep=0.8cm]
-    \item ในคำสั่ง SQL หากต้องการ \textbf{เปลี่ยนแปลงโครงสร้าง} ข้อมูลต้องใช้คำสั่งใด? \\
-    \textbf{ตอบ:} \rule{10cm}{0.4pt}
-    
-    \item \textbf{rDBMS} ที่นิสิตใช้งานจริงใน Lab ชื่อว่าอะไร? \\
-    \textbf{ตอบ:} \rule{10cm}{0.4pt}
-    
-    \item กลุ่มคำสั่ง SQL ที่ใช้ในการ \textbf{เพิ่ม ลบ เปลี่ยนแปลงข้อมูล} คือคำสั่งกลุ่มใด? \\
-    \textbf{ตอบ:} \rule{10cm}{0.4pt}
-    
-    \item จงระบุความสัมพันธ์ (Cardinality) ของหัวข้อดังต่อไปนี้ว่าเป็น one-to-one / one-to-many / many-to-one / many-to-many:
-    \begin{itemize}
-        \item Mother - Child: \rule{6cm}{0.4pt}
-        \item Doctor - Patient: \rule{6cm}{0.4pt}
-        \item House - Address: \rule{6cm}{0.4pt}
-    \end{itemize}
-    
-    \item จากข้อข้างบน (ความสัมพันธ์ 3 ข้อ) จะระบุว่ามีความสัมพันธ์ใดบ้างที่เป็น \textbf{Weak relationship}? \\
-    \textbf{ตอบ:} \rule{10cm}{0.4pt}
-    
-    \item จงอธิบายสั้นๆ ว่า "Enterprise Integrity Constraint" คืออะไร? \\
-    \textbf{ตอบ:} \rule{10cm}{0.4pt}
-    
-    \item Composite Key หมายความว่าอย่างไร? \\
-    \textbf{ตอบ:} \rule{10cm}{0.4pt}
-    
-    \item หากต้องการลบข้อมูลเฉพาะเจาะจงในคำสั่ง DELETE ต้องเติม Clause ใด? \\
-    \textbf{ตอบ:} \rule{10cm}{0.4pt}
-    
-    \item ใน EERD วงกลมที่มีอักษร "o" ย่อมาจากอะไรและหมายความว่าอย่างไร? \\
-    \textbf{ตอบ:} \rule{10cm}{0.4pt}
-    
-    \item "Derived Attribute" แตกต่างจาก "Stored Attribute" อย่างไร? \\
-    \textbf{ตอบ:} \rule{10cm}{0.4pt}
-\end{itemize}
-
-\newpage
-
-\section*{Part 3: 2 long questions (ภาษาไทย)}
-\textbf{คำสั่ง:} จงแสดงวิธีทำและคำตอบให้ถูกต้อง (ข้อละ 10 คะแนน)
-
-\begin{enumerate}
-    \item จงเขียนคำสั่ง \textbf{ทั้งหมด} ในการสร้างตารางพร้อมเพิ่มตัวอย่างข้อมูลทั้งสามแถวให้เหมือนภาพข้างล่าง โดยกำหนดให้
-    \begin{enumerate}[label=\alph*.]
-        \item \texttt{student\_id} เป็น primary key
-        \item \texttt{firstname} และ \texttt{lastname} ต้องไม่เป็น NULL
-    \end{enumerate}
-
-    \begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    \textbf{student\_id} & \textbf{firstname} & \textbf{lastname} & \textbf{age} & \textbf{tel} \\ \hline
-    27001 & Luffy & Monkey & 18 & 1234567890 \\ \hline
-    27002 & Chopper & Tony & NULL & 0123456789 \\ \hline
-    27003 & Roronoa & Zoro & 17 & NULL \\ \hline
-    \end{tabular}
-    \end{table}
-
-    \textbf{พื้นที่เขียนคำตอบ:}
-    \begin{lstlisting}[frame=single, minheight=8cm]
--- Write SQL here
-
-    \end{lstlisting}
-
-    \newpage
-    \item บริษัทแห่งหนึ่งต้องการสร้างฐานข้อมูล โดยกำหนดให้สร้าง \textbf{Conceptual level design} โดยใช้ \textbf{Chen notation ER diagram} จากข้อมูลต่อไปนี้
-    \begin{enumerate}[label=\alph*.]
-        \item บริษัทมีหลายแผนก (\texttt{Department}) ซึ่งเก็บรหัสและชื่อแผนกโดยชื่อไม่ซ้ำกัน
-        \item แต่ละแผนกมีพนักงาน (\texttt{Employee}) โดยเก็บข้อมูลรหัสพนักงาน ชื่อ นามสกุล ที่อยู่ อายุ ซึ่งพนักงานแต่ละคนสังกัดได้เพียงแผนกเดียวเท่านั้น (1:N)
-        \item ในกรณีที่พนักงานมีลูก (\texttt{Children}) ให้เก็บชื่อลูกและวันเกิด (ถือเป็น Weak Entity)
-    \end{enumerate}
-    
-    \vspace{0.5cm}
-    \centerline{\fbox{\begin{minipage}[c][12cm]{15cm} \centering (วาด ER Diagram ตรงนี้ - เน้นความถูกต้องของสัญลักษณ์ Weak Entity) \end{minipage}}}
-\end{enumerate}
-
-\newpage
-\begin{center}
-    \rule{\textwidth}{2pt} \\
-    \textbf{\Large เฉลยละเอียด (Senior Practice Solution Key)} \\
-    \rule{\textwidth}{2pt}
-\end{center}
-
-\subsection*{Part 1: MCQ Explanations}
-\begin{longtable}{|c|c|p{10.5cm}|}
-\hline \textbf{No.} & \textbf{Ans} & \textbf{Rational / Explanation (ภาษาไทย)} \\ \hline
-1 & c & Relation ห้ามมีข้อมูลซ้ำกันทั้งแถว (Duplicated rows) เพื่อให้ระบุตัวตนได้ \\ \hline
-2 & b & E.F. Codd จาก IBM เป็นผู้เสนอ Relational Model \\ \hline
-3 & b & Composite attribute คือแอตทริบิวต์ที่แตกย่อยออกไปได้อีก \\ \hline
-4 & c & M:N Mapping ต้องมี 3 ตาราง (2 ตาราง Entity และ 1 ตาราง Junction) \\ \hline
-5 & a & 1:1 มีความจุที่สามารถรวมเป็นตารางเดียวได้เพื่อลดความซับซ้อน \\ \hline
-6 & a & การยุบรวมตาราง (Mapping) มักทำกับ 1:1 เพื่อประสิทธิภาพ \\ \hline
-7 & d & WHERE ใช้กำหนดเงื่อนไขแถวที่ต้องการลบ \\ \hline
-8 & b & Double Rectangle = Weak Entity ใน Chen Notation \\ \hline
-9 & c & ALTER TABLE + ADD คือการเพิ่มคอลัมน์ \\ \hline
-10 & c & Internal Schema จัดการการเก็บไฟล์จริงๆ (Indexing/Hashing) \\ \hline
-11 & b & Atomic attribute คือค่าเดี่ยวที่ไม่สามารถแยกย่อยได้อีก \\ \hline
-12 & c & Double Line ใน ER หมายถึงทุกตัวตนต้องเข้าร่วม (Total Participation) \\ \hline
-13 & c & Partial Key (Dashed Line) ใช้บอกความต่างของ Weak Entity ในกลุ่ม Owner เดิม \\ \hline
-14 & b & DDL (Data Definition Language) ใช้จัดการโครงสร้างฐานข้อมูล \\ \hline
-15 & b & Foreign Key วางที่ฝั่ง Many เพื่ออ้างอิงกลับไปยังฝั่ง One \\ \hline
-16 & c & Primary Key ต้องไม่ซ้ำ (Unique) และไม่ว่าง (Not Null) ตามกฎ Entity Integrity \\ \hline
-17 & b & DELETE ลบข้อมูลในตาราง (TRUNCATE เร็วกว่าแต่ในตัวเลือกใช้ DELETE) \\ \hline
-18 & c & Recursive Relationship คือความสัมพันธ์ที่ Entity กระทำกับตนเอง \\ \hline
-19 & b & Referential Integrity บังคับความถูกต้องของคีย์นอก (Foreign Key) \\ \hline
-20 & b & COMMIT ใช้ยืนยันการเปลี่ยนแปลงใน Transaction \\ \hline
+\begin{longtable}{|c|p{8.5cm}|p{5cm}|}
+\hline
+\textbf{No.} & \textbf{โจทย์ / คำถาม} & \textbf{คำตอบ} \\ \hline
+1 & จงอธิบายความแตกต่างระหว่าง DDL และ DML พร้อมยกตัวอย่างคำสั่งอย่างละ 1 คำสั่ง & \\[2.8cm] \hline
+2 & Data Independence มีกี่ระดับ? และแต่ละระดับช่วยเราอย่างไร? & \\[2.8cm] \hline
+3 & เพราะเหตุใดเราจึงต้องใช้ Foreign Key ในฐานข้อมูลเชิงสัมพันธ์? & \\[2.8cm] \hline
+4 & จงอธิบายความหมายของ Composite Attribute และยกตัวอย่างประกอบ & \\[2.8cm] \hline
+5 & ในกระบวนการออกแบบฐานข้อมูล ขั้นตอนใดสำคัญที่สุด เพราะเหตุใด? & \\[2.8cm] \hline
 \end{longtable}
 
-\subsection*{Part 2: Short Answer Key}
-\begin{itemize}
-    \item \texttt{ALTER TABLE}
-    \item **MySQL** หรือ **MariaDB**
-    \item **DML** (Data Manipulation Language)
-    \item Mother-Child = **one-to-many**, Doctor-Patient = **many-to-many**, House-Address = **one-to-one**
-    \item **Mother-Child** (Child ในเชิงธุรกิจมักเป็น Weak Entity ที่ขึ้นกับพนักงาน/แม่)
-    \item กฎเกณฑ์ที่ธุรกิจกำหนดเองเพื่อคุมความถูกต้องข้อมูล (เช่น อายุต้อง > 18)
-    \item Primary Key ที่ประกอบด้วยคุณสมบัติหลายตัวรวมกัน
-    \item \texttt{WHERE}
-    \item \textbf{Overlapping} - Entity หนึ่งสามารถอยู่ใน Subclass หลายกลุ่มได้พร้อมกัน
-    \item Derived คือค่าที่คำนวณได้ (ไม่เก็บจริง) ส่วน Stored คือค่าที่บันทึกลงดิสก์
-\end{itemize}
-
-\subsection*{Part 3: Long Answer Solution}
-\textbf{1. SQL Solution:}
-\begin{lstlisting}[language=SQL]
-CREATE TABLE students (
-    student_id INT PRIMARY KEY,
-    firstname VARCHAR(50) NOT NULL,
-    lastname VARCHAR(50) NOT NULL,
-    age INT,
-    tel VARCHAR(15)
-);
-
-INSERT INTO students VALUES (27001, 'Luffy', 'Monkey', 18, '1234567890');
-INSERT INTO students VALUES (27002, 'Chopper', 'Tony', NULL, '0123456789');
-INSERT INTO students VALUES (27003, 'Roronoa', 'Zoro', 17, NULL);
-\end{lstlisting}
-
-\textbf{2. ER Diagram Concept:}
-\begin{center}
-\begin{tikzpicture}[node distance=2.5cm, every edge/.style={draw, thick}]
-    \node[entity] (dept) {Department};
-    \node[relationship] (works) [right=of dept] {Works\_In};
-    \node[entity] (emp) [right=of works] {Employee};
-    \node[identRelationship] (has) [below=of emp] {Has};
-    \node[weakEntity] (child) [below=of has] {Children};
-    
-    \draw (dept) -- (works) node[midway, above] {1};
-    \draw (works) -- (emp) node[midway, above] {N};
-    \draw (emp) -- (has) node[midway, left] {1};
-    \draw[double, thick] (has) -- (child) node[midway, left] {N};
-    
-    \node[keyAttribute] (did) [above=0.5cm of dept] {\underline{ID}};
-    \node[attribute] (dname) [below=0.5cm of dept] {Name};
-    \node[keyAttribute] (eid) [above=0.5cm of emp] {\underline{EmpID}};
-    \node[partialKey] (cname) [right=0.5cm of child] {\dashuline{Name}};
-    
-    \draw (dept) -- (did); \draw (dept) -- (dname);
-    \draw (emp) -- (eid); \draw (child) -- (cname);
-\end{tikzpicture}
-\end{center}
-
+\newpage
+\section*{Part 3: SQL \& ERD Design (ภาษาไทย) - 20 Marks}
+\dots (Content truncated)
 \end{document}

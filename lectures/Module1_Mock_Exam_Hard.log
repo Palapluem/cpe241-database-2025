@@ -2,8 +2,8 @@ This is XeTeX, Version 3.141592653-2.6-0.999997 (MiKTeX 25.4) (preloaded format=
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**./Module1_Mock_Exam.tex
-(Module1_Mock_Exam.tex
+**./Module1_Mock_Exam_Hard.tex
+(Module1_Mock_Exam_Hard.tex
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-08-13>
 (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
@@ -638,8 +638,8 @@ Package fontspec Info:
 (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
 File: lstlang1.sty 2024/09/23 1.10c listings language file
 )
-No file Module1_Mock_Exam.aux.
-\openout1 = `Module1_Mock_Exam.aux'.
+No file Module1_Mock_Exam_Hard.aux.
+\openout1 = `Module1_Mock_Exam_Hard.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
 LaTeX Font Info:    ... okay on input line 29.
@@ -761,29 +761,39 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 [1
 
 ]
+Underfull \hbox (badness 10000) in paragraph at lines 52--52
+[]|\TU/THSarabunNew(0)/m/n/12 จงอธิบายปรากฏการณ์ ”Lossless Join”
+ []
 
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 102--102
-[]|\TU/THSarabunNew(0)/m/n/12 จงอธิบายความแตกต่างระหว่าง DDL และ DML
+
+Underfull \hbox (badness 10000) in paragraph at lines 53--53
+[]|\TU/THSarabunNew(0)/m/n/12 ”Deadlock” เกิดขึ้นได้อย่างไรในระบบฐานข้อมูล และ 
+DBMS
+ []
+
+
+Underfull \hbox (badness 7796) in paragraph at lines 55--55
+[]|\TU/THSarabunNew(0)/m/n/12 ในการออกแบบ ERD, การเลือกระหว่าง ”Attribute” และ 
+”Entity”
  []
 
 
 
-[3]
+[2]
 
-[4] (Module1_Mock_Exam.aux)
+[3] (Module1_Mock_Exam_Hard.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-08-13>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 18334 strings out of 403249
- 403295 string characters out of 5460861
- 1033583 words of memory out of 5000000
- 46517 multiletter control sequences out of 15000+600000
- 626961 words of font info for 57 fonts, out of 8000000 for 9000
+ 18330 strings out of 403249
+ 403284 string characters out of 5460861
+ 1029593 words of memory out of 5000000
+ 46515 multiletter control sequences out of 15000+600000
+ 626953 words of font info for 56 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 102i,5n,107p,429b,352s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 102i,5n,107p,434b,266s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on Module1_Mock_Exam.pdf (4 pages).
+Output written on Module1_Mock_Exam_Hard.pdf (3 pages).
