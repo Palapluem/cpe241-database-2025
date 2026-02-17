@@ -1,9 +1,9 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (MiKTeX 25.4) (preloaded format=xelatex 2025.9.4)  15 FEB 2026 16:31
+This is XeTeX, Version 3.141592653-2.6-0.999997 (MiKTeX 25.4) (preloaded format=xelatex 2025.9.4)  16 FEB 2026 15:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**Module1_Mock_Exam copy.tex
-(Module1_Mock_Exam.tex
+**./CPE241_M1_Mock_Exam.tex
+(CPE241_M1_Mock_Exam.tex
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-08-13>
 (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
@@ -666,8 +666,8 @@ Space].
 
  (C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
 File: lstlang1.sty 2024/09/23 1.10c listings language file
-) (Module1_Mock_Exam.aux)
-\openout1 = `Module1_Mock_Exam.aux'.
+) (CPE241_M1_Mock_Exam.aux)
+\openout1 = `CPE241_M1_Mock_Exam.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 63.
 LaTeX Font Info:    ... okay on input line 63.
@@ -905,7 +905,7 @@ Overfull \hbox (31.40793pt too wide) in paragraph at lines 481--482
 
 
 
-[11] (Module1_Mock_Exam.aux)
+[11] (CPE241_M1_Mock_Exam.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-08-13>
@@ -913,11 +913,11 @@ L3 programming layer <2025-08-13>
  ) 
 Here is how much of TeX's memory you used:
  21490 strings out of 403249
- 453215 string characters out of 5460861
- 1114397 words of memory out of 5000000
+ 453247 string characters out of 5460861
+ 1115401 words of memory out of 5000000
  49621 multiletter control sequences out of 15000+600000
  629955 words of font info for 86 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 84i,7n,93p,477b,1205s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,7n,93p,476b,1205s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on Module1_Mock_Exam.pdf (11 pages).
+Output written on CPE241_M1_Mock_Exam.pdf (11 pages).
