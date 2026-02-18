@@ -1,0 +1,249 @@
+\documentclass[a4paper,10pt]{article}
+
+% Packages
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+\usepackage[margin=2cm]{geometry}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, calc, backgrounds}
+
+% Fonts
+\setmainfont{TH Sarabun New}
+\setmonofont{Courier New}
+
+% Code Style
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle, language=SQL}
+
+% TikZ Styles for ERD
+\tikzstyle{entity} = [rectangle, draw, text centered, minimum height=2em, minimum width=3em]
+\tikzstyle{weakentity} = [rectangle, draw, double, double distance=2pt, text centered, minimum height=2em, minimum width=3em]
+\tikzstyle{relationship} = [diamond, draw, text centered, aspect=2]
+\tikzstyle{identrelationship} = [diamond, draw, double, double distance=2pt, text centered, aspect=2]
+\tikzstyle{attribute} = [ellipse, draw, text centered, node distance=2cm]
+\tikzstyle{keyattribute} = [ellipse, draw, text centered, node distance=2cm, font=\bfseries]
+\tikzstyle{multiattribute} = [ellipse, draw, double, double distance=2pt, text centered]
+\tikzstyle{dashattribute} = [ellipse, draw, dashed, text centered]
+
+% Dash underline command
+\usepackage[normalem]{ulem}
+\def\dashuline{\bgroup
+  \ifdim\ULdepth=\maxdimen  % Set depth if not set
+   \settodepth\ULdepth{(j}\advance\ULdepth.4pt\fi
+  \markoverwith{\kern.15em\vtop{\kern\ULdepth \hrule width .2em}\kern.15em}\ULon}
+
+\title{CPE241 Module 1: Ultimate Cheat Sheet (Mock Exam Reference)}
+\author{Generated for Exam Prep}
+\date{February 19, 2026}
+
+\begin{document}
+
+\maketitle
+
+\section*{Part 1: Core Concepts (Expanded \& Related)}
+
+\subsection*{1. Database Pioneers \& Models}
+\begin{itemize}
+    \item \textbf{Dr. Edgar F. Codd (E.F. Codd):} The "Father" of the Relational Model (1970). Proposed the 12 rules for RDBMS.
+    \item \textbf{Peter Chen:} The creator of the Entity-Relationship (ER) Model (1976).
+    \item \textbf{Charles Bachman:} Developer of the Network Model (IDS). Known for Bachman diagrams.
+\end{itemize}
+
+\subsection*{2. Characteristics of Relations (Tables)}
+\begin{itemize}
+    \item \textbf{Rows (Tuples):}
+    \begin{itemize}
+        \item \textbf{Uniqueness:} No duplicate rows allowed (Key concept).
+        \item \textbf{Order:} Row order is \textbf{insignificant}.
+    \end{itemize}
+    \item \textbf{Columns (Attributes):}
+    \begin{itemize}
+        \item \textbf{Atomic:} Cells must have single values (1NF).
+        \item \textbf{Homogenous:} All values in a column must be same type.
+        \item \textbf{Order:} Column order is \textbf{insignificant}.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{3. Attribute Classifications \& Notation}
+\begin{itemize}
+    \item \textbf{Simple:} Atomic, cannot be split (e.g., Blood Type). \textit{Solid Ellipse}.
+    \item \textbf{Composite:} Can be split into sub-attributes (e.g., Name $\rightarrow$ First, Last).
+    \item \textbf{Multi-valued:} Has multiple values for one entity. \textit{Double Ellipse}. (Requires new table).
+    \item \textbf{Derived:} Calculated from others (e.g., Age from Birthdate). \textit{Dashed Ellipse}.
+    \item \textbf{Stored:} Attributes physically saved in the DB.
+\end{itemize}
+
+\subsection*{4. Keys \& Identification}
+\begin{itemize}
+    \item \textbf{Super Key:} Any set of attributes that uniquely identifies a row.
+    \item \textbf{Candidate Key:} A \textbf{minimal} Super Key.
+    \item \textbf{Primary Key (PK):} The chosen candidate key. Not NULL.
+    \item \textbf{Foreign Key (FK):} Links to a PK in another table.
+\end{itemize}
+
+\subsection*{5. ER Notation \& Weak Entities (Chen Model)}
+\begin{itemize}
+    \item \textbf{Strong Entity:} Rectangle. Independent existence.
+    \item \textbf{Weak Entity:} Double Rectangle. Dependent existence.
+    \begin{itemize}
+        \item \textit{Identification:} Identified by its \textbf{Partial Key} + Owner's \textbf{PK}.
+    \end{itemize}
+    \item \textbf{Identifying Relationship:} Double Diamond. Connects Weak to Owner.
+    \item \textbf{Total Participation:} Double Line. Entity \textit{must} participate (min=1).
+\end{itemize}
+
+\subsection*{6. Mapping Relationships}
+\begin{itemize}
+    \item \textbf{1:1:} Collapse into 1 table if Total Participation on both sides. Else add FK to Total side.
+    \item \textbf{1:N:} FK goes to \textbf{"Many"} side.
+    \item \textbf{M:N:} Create a \textbf{New Junction Table}. Composite PK (FK\_A + FK\_B).
+\end{itemize}
+
+\subsection*{7. Integrity Constraints}
+\begin{itemize}
+    \item \textbf{Entity Integrity:} PK cannot be NULL + Must be Unique.
+    \item \textbf{Referential Integrity:} FK must match Parent PK or be NULL.
+    \item \textbf{Domain Constraint:} Values must match defined type.
+\end{itemize}
+
+\subsection*{8. EER Constraints}
+\begin{itemize}
+    \item \textbf{Disjoint (d):} Entity must be \textbf{only one} subclass.
+    \item \textbf{Overlapping (o):} Entity can be \textbf{multiple} subclasses.
+\end{itemize}
+
+\subsection*{9. SQL Categories}
+\begin{itemize}
+    \item \textbf{DDL:} \texttt{CREATE}, \texttt{ALTER}, \texttt{DROP}, \texttt{TRUNCATE}.
+    \item \textbf{DML:} \texttt{INSERT}, \texttt{UPDATE}, \texttt{DELETE}, \texttt{SELECT}.
+    \item \textbf{DCL:} \texttt{GRANT}, \texttt{REVOKE}.
+\end{itemize}
+
+\subsection*{10. Modification Rules}
+\begin{itemize}
+    \item \textbf{DELETE requires WHERE:} Without \texttt{WHERE}, it deletes all rows.
+    \item \textbf{UPDATE requires WHERE:} Without \texttt{WHERE}, it updates all rows.
+\end{itemize}
+
+\hrule
+
+\section*{Part 2: Short Answer Concepts}
+
+\begin{itemize}
+    \item \textbf{Schema Modification (ALTER):}
+    \begin{itemize}
+        \item \texttt{ALTER TABLE t ADD column type;}
+        \item \texttt{ALTER TABLE t MODIFY column type;}
+        \item \texttt{ALTER TABLE t DROP COLUMN column;}
+        \item \texttt{ALTER TABLE t RENAME TO new\_name;}
+    \end{itemize}
+    \item \textbf{Deletion Commands:}
+    \begin{itemize}
+        \item \textbf{DELETE:} SQL DML. Slow.
+        \item \textbf{TRUNCATE:} SQL DDL. Fast (Resets ID).
+        \item \textbf{DROP:} SQL DDL. Removes Table completely.
+    \end{itemize}
+    \item \textbf{Weak Relationship:} A relationship where the child cannot exist without the parent (e.g., Hotel - Room).
+    \item \textbf{Composite Key:} PK made of 2+ attributes. Essential for M:N junction tables.
+\end{itemize}
+
+\hrule
+
+\section*{Part 3: Simulation Practice (Long Answer Style)}
+
+\subsection*{Practice Problem 1: SQL Design (Table Recreation)}
+\textbf{Problem:} Write SQL to create table and insert 2 rows.
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{member\_id} & \textbf{username} & \textbf{email} & \textbf{points} \\ \hline
+1001 & gamer\_x & x@game.com & 500 \\ \hline
+1002 & pro\_player & pro@game.com & NULL \\ \hline
+\end{tabular}
+\end{center}
+
+\textbf{Answer:}
+\begin{lstlisting}
+CREATE TABLE Members (
+    member_id INT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    points INT
+);
+
+INSERT INTO Members VALUES (1001, 'gamer_x', 'x@game.com', 500);
+INSERT INTO Members VALUES (1002, 'pro_player', 'pro@game.com', NULL);
+\end{lstlisting}
+
+\subsection*{Practice Problem 2: ER Conceptual Design}
+\textbf{Problem Scenario:} Design an ER Diagram for \textbf{Company Project System}.
+\begin{itemize}
+    \item A \textbf{Department} controls many \textbf{Projects} (1:N).
+    \item Each Project has multiple \textbf{Tasks} (Weak Entity).
+\end{itemize}
+
+\textbf{Diagram Solution:}
+
+\begin{center}
+\begin{tikzpicture}[node distance=2.5cm, every edge/.style={draw, thick}, scale=0.9, transform shape]
+    % Entities
+    \node[entity] (dept) {Department};
+    \node[entity] (proj) [right=4cm of dept] {Project};
+    \node[weakentity] (task) [below=3cm of proj] {Task};
+
+    % Attributes for Dept
+    \node[keyattribute] (dname) [above left=0.5cm and 0.5cm of dept] {\underline{Name}} edge (dept);
+    \node[attribute] (dloc) [below left=0.5cm and 0.5cm of dept] {Location} edge (dept);
+
+    % Attributes for Project
+    \node[keyattribute] (ptitle) [above=0.8cm of proj] {\underline{Title}} edge (proj);
+    \node[attribute] (pbudget) [right=0.8cm of proj] {Budget} edge (proj);
+
+    % Attributes for Task (Weak)
+    \node[attribute] (taskno) [left=1.5cm of task] {\dashuline{TaskNo}} edge (task); % Partial Key
+    \node[attribute] (tdesc) [right=1.5cm of task] {Desc} edge (task);
+
+    % Relationships
+    \node[relationship] (controls) at ($(dept)!0.5!(proj)$) {Controls};
+    \node[identrelationship] (has) at ($(proj)!0.5!(task)$) {Has};
+
+    % Connectors
+    \draw (dept) -- (controls) node[pos=0.3, above=0.1cm] {1};
+    \draw (controls) -- (proj) node[pos=0.7, above=0.1cm] {N};
+
+    \draw (proj) -- (has) node[pos=0.3, left=0.1cm] {1};
+    \draw[double, thick] (has) -- (task) node[pos=0.7, left=0.1cm] {N}; % Total Participation
+
+\end{tikzpicture}
+\end{center}
+
+\end{document}
