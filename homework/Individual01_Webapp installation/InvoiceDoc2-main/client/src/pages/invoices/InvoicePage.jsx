@@ -49,6 +49,8 @@ export default function InvoicePage({ mode: propMode }) {
                     setInitialData({
                         invoice_no: h.invoice_no,
                         customer_code: h.customer_code,
+                        sales_person_code: h.sales_person_code || "",
+                        sales_person_name: h.sales_person_name || "",
                         customer_label: `${h.customer_code || ''} - ${h.customer_name}`.replace(/^ - /, ''),
                         invoice_date: h.invoice_date,
                         vat_rate: rate,
@@ -133,6 +135,11 @@ export default function InvoicePage({ mode: propMode }) {
                             <h2 className="mb-4">INVOICE</h2>
                             <div><span className="font-bold">Date:</span> {formatDate(h.invoice_date)}</div>
                             <div><span className="font-bold">Invoice No:</span> {h.invoice_no}</div>
+                            {h.sales_person_code && (
+                                <div>
+                                    <span className="font-bold">Sales Person:</span> {h.sales_person_code} - {h.sales_person_name}
+                                </div>
+                            )}
                         </div>
                     </div>
 

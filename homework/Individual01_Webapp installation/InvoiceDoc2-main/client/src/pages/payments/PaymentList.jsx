@@ -1,13 +1,13 @@
-// Invoice list: click Delete → show confirm modal → call delete API → refresh table via refreshTrigger
+// Payment list: click Delete → show confirm modal → call delete API → refresh table
 import React from "react";
 import { toast } from "react-toastify";
-import { listInvoices, deleteInvoice } from "../../api/invoices.api.js";
+import { listPayments, deletePayment } from "../../api/payments.api.js";
 import { formatBaht, formatDate } from "../../utils.js";
 import DataList from "../../components/DataList.jsx";
 import { ConfirmModal, AlertModal } from "../../components/Modal.jsx";
 
-export default function InvoiceList() {
-    const fetchData = React.useCallback((params) => listInvoices(params), []);
+export default function PaymentList() {
+    const fetchData = React.useCallback((params) => listPayments(params), []);
     const [confirmModal, setConfirmModal] = React.useState({ isOpen: false, id: null });
     const [alertModal, setAlertModal] = React.useState({ isOpen: false, message: "" });
     const [refreshTrigger, setRefreshTrigger] = React.useState(0);
@@ -20,10 +20,10 @@ export default function InvoiceList() {
 
     const confirmDelete = async () => {
         try {
-            await deleteInvoice(confirmModal.id);
+            await deletePayment(confirmModal.id);
             closeConfirm();
             setRefreshTrigger((t) => t + 1);
-            toast.success("Invoice deleted.");
+            toast.success("Payment deleted.");
         } catch (e) {
             const msg = String(e.message || e);
             toast.error(msg);
@@ -32,12 +32,14 @@ export default function InvoiceList() {
         }
     };
 
+    // Columns: id, invoice_id, payment_date, amount, method, note
     const columns = [
-        { key: "invoice_no", label: "Invoice No" },
-        { key: "customer_name", label: "Customer" },
-        { key: "sales_person_name", label: "Sales Person", render: (v) => v || "-" },
-        { key: "invoice_date", label: "Date", render: v => formatDate(v) },
-        { key: "amount_due", label: "Amount Due", align: "right", render: v => <span className="font-bold">{formatBaht(v)}</span> }
+        { key: "id", label: "ID", sortable: true, style: { width: 60 } },
+        { key: "invoice_id", label: "Invoice ID", sortable: true },
+        { key: "payment_date", label: "Payment Date", sortable: true, render: v => formatDate(v) },
+        { key: "amount", label: "Amount", sortable: true, align: "right", render: v => <span className="font-bold">{formatBaht(v)}</span> },
+        { key: "method", label: "Method", sortable: true },
+        { key: "note", label: "Note", sortable: true, render: v => v || "-" },
     ];
 
     return (
@@ -47,8 +49,8 @@ export default function InvoiceList() {
                 onClose={closeConfirm}
                 onConfirm={confirmDelete}
                 closeOnConfirm={false}
-                title="Delete Invoice"
-                message="Are you sure you want to delete this invoice?"
+                title="Delete Payment"
+                message="Are you sure you want to delete this payment?"
                 confirmText="Delete"
             />
             <AlertModal
@@ -59,13 +61,13 @@ export default function InvoiceList() {
             />
             <DataList
                 refreshTrigger={refreshTrigger}
-                title="Invoices"
+                title="Payments"
                 fetchData={fetchData}
                 columns={columns}
-                searchPlaceholder="Search invoice no, customer..."
-                itemName="invoices"
-                basePath="/invoices"
-                itemKey="invoice_no"
+                searchPlaceholder="Search ID, Invoice, Note..."
+                itemName="payment"
+                basePath="/payments"
+                itemKey="id"
                 onDelete={handleDelete}
             />
         </>

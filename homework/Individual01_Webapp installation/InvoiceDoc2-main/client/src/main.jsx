@@ -11,6 +11,8 @@ import CustomerPage from "./pages/customers/CustomerPage.jsx";
 import ProductList from "./pages/products/ProductList.jsx";
 import ProductPage from "./pages/products/ProductPage.jsx";
 import Reports from "./pages/reports/Reports.jsx";
+import PaymentList from "./pages/payments/PaymentList.jsx";
+import PaymentPage from "./pages/payments/PaymentPage.jsx";
 import { http } from "./api/http.js";
 import "./index.css";
 
@@ -92,6 +94,11 @@ function Sidebar() {
             Customer Buying
           </NavLink>
         </SubMenu>
+
+        <NavLink to="/payments" className={getLinkClass}>
+          <svg style={{ marginRight: 10 }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Payments
+        </NavLink>
       </nav>
     </aside>
   );
@@ -196,6 +203,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/products" element={<Layout><ProductList /></Layout>} />
         <Route path="/products/new" element={<Layout><ProductPage mode="create" /></Layout>} />
         <Route path="/products/:id" element={<Layout><ProductPage mode="view" /></Layout>} />
+        <Route path="/payments" element={<Layout><PaymentList /></Layout>} />
+        <Route path="/payments/new" element={<Layout><PaymentPage /></Layout>} />
+        <Route path="/payments/:id" element={<Layout><PaymentPage /></Layout>} />
+        <Route path="/payments/:id/edit" element={<Layout><PaymentPage /></Layout>} />
         <Route path="/products/:id/edit" element={<Layout><ProductPage mode="edit" /></Layout>} />
         <Route path="/reports" element={<Navigate to="/reports/product-sales" replace />} />
         <Route path="/reports/product-sales" element={<Layout><Reports type="product-sales" /></Layout>} />
