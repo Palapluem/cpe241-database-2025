@@ -1,0 +1,744 @@
+\documentclass[a4paper,12pt]{article}
+
+% แพ็กเกจสำหรับภาษาไทยและการจัดการเอกสาร
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, calc}
+\usepackage{float}
+\usepackage[normalem]{ulem}
+\usepackage{needspace}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multicol}
+
+% ตั้งค่าฟอนต์ภาษาไทย (ต้องมีฟอนต์ TH Sarabun New)
+\setmainfont{TH Sarabun New} 
+\setmonofont{Courier New}
+
+% ตั้งค่าการตัดคำภาษาไทย เพื่อป้องกันตัวหนังสือตกขอบกระดาษ
+\XeTeXlinebreaklocale "th"
+\XeTeXlinebreakskip = 0pt plus 1pt
+
+\linespread{1.15}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle, language=SQL}
+
+\begin{document}
+
+\begin{center}
+    \textbf{\Large CPE 241 Database Systems (Module 2)}\\
+    \textbf{Mock Exam (ข้อสอบจำลอง)}\\
+    \vspace{0.2cm}
+    เวลาสอบ: 3 ชั่วโมง\\
+    คะแนนเต็ม 60 คะแนน
+\end{center}
+\hrule
+\vspace{0.5cm}
+
+\section*{Part 1: Multiple Choice Questions (20 Marks)}
+\textbf{คำชี้แจง:} เลือกคำตอบที่ถูกต้องที่สุด (ข้อละ 1 คะแนน)\\
+\textit{ข้อ 1-8 อิงตามหัวข้อที่ออกสอบจริงในปีที่แล้ว ส่วนข้อ 9-20 เป็นเนื้อหาวิเคราะห์เพิ่มเติมตามสไลด์}
+
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \needspace{6\baselineskip}
+    \item ข้อใดกล่าวถึงคุณสมบัติของ Normal Form ในแต่ละระดับได้ถูกต้องที่สุด?
+    \begin{enumerate}[label=\alph*.]
+        \item 1NF: ข้อมูลทุกช่องต้องเป็น Atomic value และอนุญาตให้มี Multivalued attribute ได้
+        \item 2NF: ต้องไม่มี Partial Dependency เกิดขึ้นกับตารางที่มี Composite Primary Key
+        \item 3NF: ทุกตัวกำหนดค่า (Determinant) จะต้องมีคุณสมบัติเป็น Candidate Key เสมอ
+        \item BCNF: อนุญาตให้มี Transitive Dependency ได้ หากตัวกำหนดค่าเป็น Primary Key
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item ภาษาสอบถาม (Query Language) ในข้อใด ที่จัดเป็นภาษาแบบ Procedural (ต้องระบุขั้นตอนการทำงาน)?
+    \begin{enumerate}[label=\alph*.]
+        \item SQL
+        \item TRC (Tuple Relational Calculus)
+        \item DRC (Domain Relational Calculus)
+        \item RA (Relational Algebra)
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item จากสมการ Tuple Relational Calculus (TRC) ด้านล่าง มีความหมายตรงกับข้อใด?\\
+    \[ \{ t.\text{Fname} \mid t \in \text{Employee} \land \forall s \in \text{Employee} (t.\text{Salary} \ge s.\text{Salary}) \} \]
+    \begin{enumerate}[label=\alph*.]
+        \item หาชื่อพนักงานที่มีเงินเดือนน้อยที่สุด
+        \item หาชื่อพนักงานที่มีเงินเดือน ``สูงที่สุด'' (Highest-paid employee)
+        \item หาชื่อพนักงานทุกคนที่มีเงินเดือนเท่ากัน
+        \item หาชื่อพนักงานที่มีเงินเดือนมากกว่าพนักงานทุกคนในแผนก 5
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item การดำเนินการ Join ข้อมูลในรูปแบบใด ที่ทำให้เกิดค่าว่าง (Null value) ในตารางผลลัพธ์ได้เสมอหากข้อมูลไม่ตรงกัน?
+    \begin{enumerate}[label=\alph*.]
+        \item Natural Join
+        \item Theta Join
+        \item Outer Join (เช่น Left, Right, Full)
+        \item Equi-Join
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item จากสมการ Relational Algebra ด้านล่าง จัดเป็นเทคนิค \textbf{Query Optimization} แบบใด?\\
+    \[ \pi_{s.\text{name}, g.\text{grade}} (\sigma_{g.\text{grade} = \text{'A'}} (\text{students} \bowtie \text{grades})) \Rightarrow \pi_{s.\text{name}, g.\text{grade}} (\text{students} \bowtie \sigma_{g.\text{grade} = \text{'A'}} (\text{grades})) \]
+    \begin{enumerate}[label=\alph*.]
+        \item Projection Pushdown
+        \item Predicate Pushdown
+        \item Subquery Flattening
+        \item Left-deep Tree Transformation
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item การแบ่งแยกตารางแนวนอนโดยตัดเฉพาะบางแถว (Rows) ที่สอดคล้องกับเงื่อนไข เช่น แยกเฉพาะนักศึกษาปี 1 ออกมาอีกตารางหนึ่ง เรียกว่าอะไร?
+    \begin{enumerate}[label=\alph*.]
+        \item Vertical Partitioning
+        \item Horizontal Partitioning
+        \item Range Partitioning
+        \item Hash Partitioning
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item ผลกระทบหลักจาก \textbf{การสร้าง Index} บนคอลัมน์ในระบบฐานข้อมูลคือข้อใด?
+    \begin{enumerate}[label=\alph*.]
+        \item ทำให้อ่านข้อมูลเร็วขึ้น (\texttt{SELECT}) แต่อาจทำให้การเขียนช้าลง (\texttt{INSERT / UPDATE})
+        \item ฐานข้อมูลเปลี่ยนเป็นระดับ 3NF ทันที
+        \item ค่าของตัวแปรจะเป็นเอกลักษณ์เสมอ
+        \item ประหยัดพื้นที่ใน Hard Disk
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item กำหนดให้ Table A มีข้อมูลอยู่ทั้งหมด 100 Records การดำเนินการทางคณิตศาสตร์ (Relational Algebra) ในข้อใด ที่จะทำให้ได้จำนวน Records ผลลัพธ์ ``เยอะที่สุด'' ?
+    \begin{enumerate}[label=\alph*.]
+        \item $ A \cup A $ (Union)
+        \item $ A \cap A $ (Intersection)
+        \item $ A - A $ (Set Difference)
+        \item $ A \times A $ (Cartesian Product)
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item หากต้องการกรองข้อมูลโดยเช็คว่า ``มีผลลัพธ์ใดๆ ถูกส่งกลับมาจาก Subquery หรือไม่'' ควรใช้คีย์เวิร์ดใดใน SQL?
+    \begin{enumerate}[label=\alph*.]
+        \item \texttt{IN}
+        \item \texttt{EXISTS}
+        \item \texttt{> ALL}
+        \item \texttt{ANY}
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item คำสั่ง \texttt{SELECT *} ส่งผลเสียต่อการทำงานของระบบอย่างไรเมื่อเทียบกับระบุชื่อคอลัมน์?
+    \begin{enumerate}[label=\alph*.]
+        \item ทำให้เกิด Error บ่อย
+        \item เพิ่ม Data Transfers เกินความจำเป็น และลดประสิทธิภาพของ Projection Pushdown
+        \item ทำให้ไม่สามารถใช้ GROUP BY ได้
+        \item ทำให้เกิด Full Table Scan เสมอ
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item ปัญหา Modification Anomaly ประเภท ``Deletion Anomaly'' เกิดขึ้นในกรณีใด?
+    \begin{enumerate}[label=\alph*.]
+        \item ลบพนักงานคนสุดท้ายของแผนกทิ้ง ทำให้ข้อมูลของ ``แผนก'' นั้นสูญหายไปด้วย
+        \item แก้ไขชื่อผู้จัดการแผนก แต่ต้องตามไปแก้ข้อมูลของพนักงานทุกคนในแผนกนั้น
+        \item ไม่สามารถเพิ่มพนักงานใหม่ได้เพราะยังไม่ได้ระบุแผนก
+        \item ถูกทุกข้อ
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item ความแตกต่างระหว่าง \texttt{WHERE} และ \texttt{HAVING} คืออะไร?
+    \begin{enumerate}[label=\alph*.]
+        \item \texttt{WHERE} ทำงานหลัง GROUP BY, \texttt{HAVING} ทำงานก่อน GROUP BY
+        \item \texttt{WHERE} กรองข้อมูลก่อนการจัดกลุ่ม (Group By) ซึ่งช่วยเพิ่ม Performance, \texttt{HAVING} กรองหลังจัดกลุ่ม
+        \item \texttt{HAVING} ไม่สามารถใช้ฟังก์ชัน Aggregate ได้
+        \item ทั้งสองคำสั่งสามารถใช้สลับกันได้ 100\%
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item หากนำตรรกศาสตร์ Three-valued logic (3VL) ไปประมวลผลนิพจน์ \texttt{NOT (UNKNOWN OR FALSE) AND TRUE} ผลลัพธ์จะได้ค่าใด?
+    \begin{enumerate}[label=\alph*.]
+        \item TRUE
+        \item FALSE
+        \item UNKNOWN
+        \item NULL
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item ทำไมใน SQL จึงห้ามใช้เครื่องหมาย \texttt{=} ในการเปรียบเทียบค่า \texttt{NULL} (เช่น \texttt{WHERE grade = NULL})?
+    \begin{enumerate}[label=\alph*.]
+        \item เพราะ \texttt{NULL} เป็นตัวแปรประเภท String
+        \item เพราะ \texttt{NULL} หมายถึง ``ไม่รู้ค่า (Unknown)'' การเปรียบเทียบจึงไม่ได้ค่าความเป็นจริง ต้องใช้ \texttt{IS NULL} แทน
+        \item เพราะจะทำให้เกิด Syntax Error ทันที
+        \item สามารถใช้ได้ ไม่มีข้อห้าม
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item BCNF (Boyce-Codd Normal Form) ถูกสร้างขึ้นมาเพื่ออุดช่องโหว่ของ 3NF ในกรณีใด?
+    \begin{enumerate}[label=\alph*.]
+        \item กรณีที่มี Multivalued attribute
+        \item กรณีที่ตารางมี Primary Key เพียงคอลัมน์เดียว
+        \item กรณีที่มีตัวกำหนดค่า (Determinant) ซึ่งฝั่งซ้ายของลูกศรไม่ได้เป็น Candidate Key
+        \item กรณีที่ตารางมีจำนวนแถวมากเกินไป
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item เมื่อเขียน Nested Query ด้วยคำสั่ง \texttt{NOT IN} หากผลลัพธ์ของ Subquery มีค่า \texttt{NULL} ปะปนอยู่ ผลลัพธ์ของการกรองนั้นจะเป็นอย่างไร?
+    \begin{enumerate}[label=\alph*.]
+        \item ประเมินผลเป็นจริง (TRUE) สำหรับค่าที่ระบุ
+        \item ประเมินผลเป็นเท็จ (FALSE) หรือ UNKNOWN ทำให้ไม่ระบุข้อมูลใดๆ กลับมาเลย
+        \item ระบบจะข้ามค่า \texttt{NULL} ไปและเปรียบเทียบเฉพาะค่าที่มีอยู่จริง
+        \item เกิดข้อผิดพลาด (Syntax Error) ทันที
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item การใช้คำสั่ง \texttt{CREATE VIEW} มีประโยชน์อย่างไรต่อ Database Administrator?
+    \begin{enumerate}[label=\alph*.]
+        \item ช่วยเร่งความเร็วในการ INSERT ข้อมูล
+        \item ช่วยซ่อนคอลัมน์หรือข้อมูลที่ละเอียดอ่อนจากผู้ใช้ทั่วไป (Security)
+        \item ทำให้เกิด Physical Table ใหม่ในฮาร์ดดิสก์
+        \item ช่วยลดขนาดของ Database ลงครึ่งหนึ่ง
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item คำสั่ง SQL ข้อใดที่สามารถใช้เชื่อมผลลัพธ์จาก 2 คิวรีเข้าด้วยกัน โดย ``ตัดข้อมูลที่ซ้ำกันทิ้ง'' อัตโนมัติ?
+    \begin{enumerate}[label=\alph*.]
+        \item \texttt{UNION ALL}
+        \item \texttt{UNION}
+        \item \texttt{CROSS JOIN}
+        \item \texttt{EXCEPT}
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item หากเราต้องการให้คิวรีหา ``พนักงานที่เงินเดือนมากกว่าทุกคนในแผนก 5'' โครงสร้าง Subquery ต้องใช้เครื่องหมายใด?
+    \begin{enumerate}[label=\alph*.]
+        \item \texttt{> ANY}
+        \item \texttt{IN}
+        \item \texttt{> ALL}
+        \item \texttt{= SOME}
+    \end{enumerate}
+
+    \needspace{6\baselineskip}
+    \item ตัวแปรใน Domain Relational Calculus (DRC) อ้างอิงถึงสิ่งใด?
+    \begin{enumerate}[label=\alph*.]
+        \item ทั้งแถวข้อมูล (Tuple)
+        \item ค่าคงที่ทางคณิตศาสตร์
+        \item ค่าของคอลัมน์ (Column / Domain values)
+        \item ชื่อของตาราง
+    \end{enumerate}
+
+\end{enumerate}
+
+\newpage
+\section*{Part 2: Short Answer Questions (20 Marks)}
+\textbf{คำชี้แจง:} ตอบคำถามด้วยคำสั้นๆ หรือวลีแบบกระชับ (ข้อละ 2 คะแนน)
+
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item ความแตกต่างหลักระหว่างการประมวลผลคำสั่ง \texttt{IN} และ \texttt{EXISTS} เมื่อใช้ใน Nested Query คืออะไร?
+    \vspace{1.5cm}
+
+    \item สมมติว่าต้องการหาพนักงานที่มีเงินเดือน ``มากกว่าพนักงานทุกคน'' ในแผนกที่ 5 ควรใช้เครื่องหมายการเปรียบเทียบใดควบคู่กับ Subquery?
+    \vspace{1.5cm}
+
+    \item ในคำสั่ง SQL การใช้ \texttt{= ANY} มีความหมายและหลักการทำงานเทียบเท่ากับการใช้คีย์เวิร์ดใดใน Nested Query?
+    \vspace{1.5cm}
+
+    \item การทำ Correlated Subquery มีลักษณะการทำงานที่ทำให้ช้ากว่า Subquery ปกติอย่างไร? อธิบายสั้นๆ
+    \vspace{1.5cm}
+
+    \item หากต้องการหาข้อมูลของแผนกที่ ``ไม่มีพนักงานอยู่เลย'' โดยใช้ Nested Query ควรใช้รูปแบบคำสั่งใดถึงจะเหมาะสมที่สุด?
+    \vspace{1.5cm}
+
+    \item ข้อควรระวังเมื่อใช้ \texttt{CREATE VIEW} แล้วต้องการออกแบบให้เป็น Updatable View (สามารถปรับปรุงข้อมูลกลับไปยังตารางหลักได้) คือข้อจำกัดใดบ้าง?
+    \vspace{1.5cm}
+
+    \item ในกระบวนการ Normalization ปัญหา ``Repeating Groups'' หรือช่องข้อมูลที่เก็บค่าหลายค่า (Multivalued) จะขัดกับกฎของ Normal Form ระดับใด?
+    \vspace{1.5cm}
+
+    \item จงอธิบายสั้นๆ ว่า Transitive Dependency ที่คอยขัดกับกฎของ 3NF มีลักษณะการพึ่งพาอย่างไร?
+    \vspace{1.5cm}
+
+    \item BCNF ถือเป็นรูปแบบที่เข้มงวดกว่า 3NF ตารางที่สมบูรณ์ในระดับ 3NF แล้วจะมีโอกาสพังและ ``ไม่ผ่าน'' ระดับ BCNF ในกรณีใด?
+    \vspace{2.5cm}
+
+    \item การสร้าง Index จำนวนมากบนตารางเดียวกัน มีผลเสียต่อระบบฐานข้อมูลในด้านใดบ้าง? (ระบุมาอย่างน้อย 2 ข้อ)
+    \vspace{2.5cm}
+\end{enumerate}
+
+\newpage
+\section*{Part 3: Long Questions (20 Marks)}
+\textit{คำชี้แจง: ข้อแรกเป็น Complex Query 4 แบบ, ข้อสองเป็น Normalization 1NF -> 3NF}
+
+\subsection*{ข้อที่ 1: Complex Query Part (10 คะแนน)}
+\textbf{สถานการณ์:} กำหนดโครงสร้างฐานข้อมูล \textbf{COMPANY} ของบริษัทแห่งหนึ่ง ดังนี้ (อิงจาก COMPANY Database Schema)
+
+\vspace{0.3cm}
+\fbox{
+\begin{minipage}{0.95\textwidth}
+\begin{small}
+\textbf{EMPLOYEE} (\uline{Ssn}, Fname, Minit, Lname, Bdate, Address, Sex, Salary, Super\_ssn, Dno)\\
+\textbf{DEPARTMENT} (\uline{Dnumber}, Dname, Mgr\_ssn, Mgr\_start\_date)\\
+\textbf{DEPT\_LOCATIONS} (\uline{Dnumber}, \uline{Dlocation})\\
+\textbf{PROJECT} (\uline{Pnumber}, Pname, Plocation, Dnum)\\
+\textbf{WORKS\_ON} (\uline{Essn}, \uline{Pno}, Hours)\\
+\textbf{DEPENDENT} (\uline{Essn}, \uline{Dependent\_name}, Sex, Bdate, Relationship)
+\end{small}
+\end{minipage}
+}
+\vspace{0.3cm}
+
+\textbf{คำชี้แจง:} ให้เขียนคำตอบเป็นสมการ/คำสั่ง \textbf{RA, TRC, DRC} และ \textbf{SQL} สำหรับแต่ละข้อย่อยต่อไปนี้ โดย \underline{(โจทย์แต่ละข้อย่อยและพื้นที่ตอบให้อยู่ในหน้าเดียวกัน)}
+
+\textbf{1.1 (3 คะแนน) หาชื่อ (Fname) และนามสกุล (Lname) ของพนักงานที่ทำงานในโปรเจกต์ชื่อ 'ProductX'}
+
+\vspace{0.1cm}
+\textbf{RA:}
+\vspace{2.5cm}
+
+\textbf{TRC:}
+\vspace{2.5cm}
+
+\textbf{DRC:}
+\vspace{2.5cm}
+
+\textbf{SQL:}
+\vspace{2.5cm}
+
+\newpage
+
+\textbf{1.2 (4 คะแนน) หาชื่อ (Fname) และนามสกุล (Lname) ของพนักงาน ที่ทำงานใน \underline{ทุกๆ โปรเจกต์} (All projects) ที่ควบคุมโดยแผนก 5 (Dnum = 5)}
+
+\vspace{0.1cm}
+\textbf{RA:} \textit{(คำใบ้: ประยุกต์ใช้ตรรกะ Division)}
+\vspace{3.5cm}
+
+\textbf{TRC:}
+\vspace{3.5cm}
+
+\textbf{DRC:}
+\vspace{3.5cm}
+
+\textbf{SQL:} \textit{(คำใบ้: ใช้ \texttt{NOT EXISTS} ซ้อน \texttt{NOT EXISTS})}
+\vspace{4.5cm}
+
+\newpage
+
+\textbf{1.3 (3 คะแนน) หาชื่อ (Fname) และนามสกุล (Lname) ของพนักงานที่ \underline{ไม่มีผู้ผู้อยู่ในอุปการะ} (No Dependents)}
+
+\vspace{0.1cm}
+\textbf{RA:}
+\vspace{3.5cm}
+
+\textbf{TRC:}
+\vspace{3.5cm}
+
+\textbf{DRC:}
+\vspace{3.5cm}
+
+\textbf{SQL:}
+\vspace{4.5cm}
+
+\newpage
+\subsection*{ข้อที่ 2: Normalization (10 คะแนน)}
+\textbf{สถานการณ์:} 
+บริษัทผลิตวิดีโอเกมในต่างประเทศได้เก็บข้อมูลของ ผู้พัฒนา-ตัวเกม-เควสย่อย (Studio-Game-Quest) ลงใน Report Table เดียวแบบไม่ได้จัดรูปแบบ (Unnormalized Data) ส่งผลให้เกิดปัญหากับระบบฐานข้อมูล ข้อมูลตัวอย่างที่ถูกดึงออกมาแสดงดังตาราง \texttt{GAME\_QUEST\_STUDIO}:
+
+\vspace{0.3cm}
+\begin{table}[H]
+    \centering
+    \tiny
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|l|c|c|l|c|l|c|l|c|c|c|}
+        \hline
+        \rowcolor{cyan!20}
+        \textbf{Studio} & \textbf{Country} & \textbf{Specialty} & \textbf{GameTitle} & \textbf{RelYear} & \textbf{Publisher} & \textbf{GameSize} & \textbf{QuestTitle} & \textbf{QuestNo} & \textbf{QuestType} & \textbf{RewardEXP} \\
+        \hline
+        Bethesda & USA & RPG & Skyrim & 2011 & Zenimax & 12GB & Unbound & 1 & Main & 100 \\
+        \hline
+        Bethesda & USA & RPG & Skyrim & 2011 & Zenimax & 12GB & Before the Storm & 2 & Main & 200 \\
+        \hline
+        Bethesda & USA & RPG & Skyrim & 2011 & Zenimax & 12GB & Golden Claw & 7 & Side & 150 \\
+        \hline
+        CDPR & Poland & ARPG & Witcher 3 & 2015 & Bandai & 35GB & Lilac and Gooseberries & 2 & Main & 250 \\
+        \hline
+        CDPR & Poland & ARPG & Witcher 3 & 2015 & Bandai & 35GB & Beast of White Orchard & 6 & Side & 300 \\
+        \hline
+        Larian & Belgium & CRPG & Baldur's Gate 3 & 2023 & Larian & 120GB & Escape the Nautiloid & 1 & Main & 400 \\
+        \hline
+        Larian & Belgium & CRPG & Baldur's Gate 3 & 2023 & Larian & 120GB & Explore ruins & 12 & Side & 500 \\
+        \hline
+    \end{tabular}
+    }
+\end{table}
+
+\textit{หมายเหตุ: Primary Key หลักของตารางนี้คือ Composite Key \texttt{\{GameTitle, QuestNo\}}}
+
+\vspace{0.3cm}
+\textbf{Functional Dependencies (FDs) ที่ถูกระบุจาก Business Rules:}
+\begin{itemize}
+    \item \textbf{FD1:} \texttt{\{GameTitle, QuestNo\} $\rightarrow$ QuestTitle, QuestType, RewardEXP} \textit{(รหัสเควสของเกมนั้นๆ ระบุข้อมูลรายละเอียดเควสได้)}
+    \item \textbf{FD2:} \texttt{GameTitle $\rightarrow$ Studio, RelYear, Publisher, GameSize} \textit{(ชื่อเกม ระบุข้อมูลสตูดิโอผู้สร้าง, ปีที่วางจำหน่าย, ผู้จัดจำหน่าย และขนาดเกมได้)}
+    \item \textbf{FD3:} \texttt{Studio $\rightarrow$ Country, Specialty} \textit{(ชื่อสตูติโอ ระบุที่ตั้งประเทศ และแนวเกมที่ถนัดได้เสมอ)}
+\end{itemize}
+
+\vspace{0.5cm}
+\textbf{คำถาม:}
+
+\textbf{2.1 (3 คะแนน) ตรวจสอบสถานะ Normal Form:}\\
+ตาราง \texttt{GAME\_QUEST\_STUDIO} ปัจจุบันจัดว่าอยู่ใน Normal Form ระดับใด? ขัดกับกฎข้อใดในระดับถัดไป? (1NF, 2NF, หรือ 3NF) \textbf{ให้อธิบายเหตุผลโดยอ้างอิงถึงประเภท Dependency จาก FDs ด้านบน}
+\vspace{3.5cm}
+
+\textbf{2.2 (3 คะแนน) ทำให้เป็น 2NF:}\\
+จงแสดงการแยกตารางให้บรรลุ \textbf{Second Normal Form (2NF)} ตารางใดบ้างที่ถูกแยกออกมา? (ให้เขียนชื่อตาราง, ขีด \uline{เส้นใต้ Primary Key} และระบุ Foreign Key ให้ชัดเจน)
+\vspace{4.5cm}
+
+\newpage
+\textbf{2.3 (4 คะแนน) ทำให้เป็น 3NF:}\\
+จากผลลัพธ์ในข้อ 2.2 จงดำเนินการแยกตารางต่อจนบรรลุ \textbf{Third Normal Form (3NF)} อย่างสมบูรณ์ ให้เขียน Schema ของตารางทั้งหมดที่ได้เป็นผลลัพธ์สุดท้าย พร้อมระบุ Data ตัวอย่างในตารางที่ถูกสร้างใหม่ (เฉพาะตารางที่เกิดจากการแก้ Transitive Dependency)
+\newpage
+\section*{เฉลยและแนวคิด (Answer Key)}
+\textit{เอกสารส่วนนี้สำหรับผู้สอน หรือใช้ประเมินตนเองหลังทำข้อสอบ}
+
+\subsection*{Part 1: Multiple Choice Questions}
+\begin{multicols}{2}
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \setcounter{enumi}{0}
+    \item \textbf{b.} 2NF ระบุว่าต้องไม่มี Partial Dependency
+    \item \textbf{d.} RA เป็น Procedural Language
+    \item \textbf{b.} หาพนักงานที่เงินเดือนมากกว่าหรือเท่ากับทุกคน
+    \item \textbf{c.} Outer Join ทำให้เกิด Null ในตารางผลลัพธ์
+    \item \textbf{b.} Predicate Pushdown ดันเงื่อนไขให้กรองข้อมูลให้เล็กลงก่อน Join
+    \item \textbf{b.} Horizontal Partitioning เพราะเป็นการหั่นตารางตามแนวนอน (แถว) ให้เล็กลง
+    \item \textbf{a.} ทำให้ SELECT เร็วขึ้น แต่กระทบความเร็ว DML เพราะต้องตามไปอัปเดต Index ด้วย
+    \item \textbf{d.} Cartesian Product สร้าง $N \times M$ records
+    \item \textbf{b.} \texttt{EXISTS} เช็คตรรกะว่ามีชุดข้อมูลถูกคืนกลับมาหรือไม่
+    \item \textbf{b.} เพิ่ม Data Transfer และลดโอกาส Projection Pushdown
+    \item \textbf{a.} ข้อมูลลูกหาย พาลทำให้แม่หาย (Deletion Anomaly)
+    \item \textbf{b.} \texttt{WHERE} กรองก่อนจัดกลุ่ม \texttt{HAVING} กรองหลังจัดกลุ่ม
+    \item \textbf{c.} TRUE AND UNKNOWN = UNKNOWN
+    \item \textbf{b.} NULL = ไม่รู้ค่า เทียบด้วย \texttt{=} ไม่ได้ ต้องใช้ \texttt{IS NULL}
+    \item \textbf{c.} แก้ปัญหาตัวกำหนดค่าที่ไม่ได้เป็น Candidate Key
+    \item \textbf{b.} \texttt{NOT IN} ที่เจอ \texttt{NULL} จะคืนค่า UNKNOWN ทำให้ดรอปเรคคอร์ดนั้นทิ้ง ไม่ส่งผลลัพธ์ใดๆ กลับมา
+    \item \textbf{b.} ช่วยซ่อนคอลัมน์ (Security / Data Abstraction)
+    \item \textbf{b.} \texttt{UNION} ตัดข้อมูลซ้ำทิ้ง \texttt{UNION ALL} ไม่ตัด
+    \item \textbf{c.} \texttt{> ALL} หมายถึงมากกว่าทุกคนในกลุ่มคำตอบ
+    \item \textbf{c.} DRC อ้างอิงถึงตัวแปรในระดับ Domain (Column)
+\end{enumerate}
+\end{multicols}
+
+\subsection*{Part 2: Short Answer Questions}
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \texttt{IN} เทียบค่ากับเซตของข้อมูลว่ามีค่านั้นหรือไม่ (Value matching) ส่วน \texttt{EXISTS} ตรวจสอบแค่ว่าคิวรีนั้นคืนค่าเรคคอร์ดกลับมาหรือไม่ (Boolean/Row existence check)
+    \item \texttt{> ALL}
+    \item \texttt{IN}
+    \item Correlated Subquery ต้องอ้างอิงค่าจากตัวแปรใน Outer Query ทำให้ต้องถูกดึงไปประมวลผลซ้ำใหม่ในทุกๆ แถวที่ Outer Query อ่านข้อมูลมา
+    \item \texttt{NOT EXISTS}
+    \item วิวนั้นต้องไม่มีการใช้ฟังก์ชัน Aggregate (เช่น SUM, AVG), GROUP BY, หรือ DISTINCT (บาง RDBMS ไม่อนุญาต JOIN ที่ซับซ้อน)
+    \item 1NF (ข้อมูลต้องเป็น Atomic Value)
+    \item เป็นการที่แอตทริบิวต์ที่ไม่ใช่คีย์หลัก (Non-prime) ไปทำตัวเป็นขั้วกำหนดค่าของแอตทริบิวต์อื่นที่ไม่ใช่คีย์หลักเสียเอง (A $\rightarrow$ B $\rightarrow$ C)
+    \item กรณีที่แอตทริบิวต์รองขั้วกำหนดค่า (Non-prime determinant) ย้อนกลับไปกำหนดค่าชิ้นส่วนใดชิ้นส่วนหนึ่งของ Composite Primary Key ได้
+    \item 1) ทำให้การเขียนข้อมูล (\texttt{INSERT/UPDATE/DELETE}) ช้าลงเพราะต้องอัปเดต Index B-Tree ตาม 2) สิ้นเปลืองพื้นที่ Storage 
+\end{enumerate}
+
+\subsection*{Part 3: Long Questions}
+
+\subsubsection*{ข้อที่ 1.1: หาพนักงานที่ทำงานในโปรเจกต์ 'ProductX'}
+
+\textbf{RA:}\\
+$ \pi_{\text{Fname}, \text{Lname}} ( (\sigma_{\text{Pname}='\text{ProductX}'}(\text{PROJECT})) \bowtie \text{WORKS\_ON} \bowtie \text{EMPLOYEE}) $
+
+\textbf{TRC:}\\
+$ \{ t.\text{Fname}, t.\text{Lname} \mid \text{EMPLOYEE}(t) \land ((\exists w)(\exists p) $ \\
+$ (\text{WORKS\_ON}(w) \land \text{PROJECT}(p) \land p.\text{Pname}='\text{ProductX}' \land p.\text{Pnumber}=w.\text{Pno} \land w.\text{Essn}=t.\text{Ssn})) \} $
+
+\textbf{DRC:}\\
+\begin{small}
+$ \{ fn, ln \mid (\exists s)(\text{EMPLOYEE}(s, fn, \_, ln, \_, \_, \_, \_, \_, \_) \land $ \\
+$ (\exists pn)(\text{PROJECT}(pn, '\text{ProductX}', \_, \_) \land \text{WORKS\_ON}(s, pn, \_))) \} $
+\end{small}
+
+\textbf{SQL Statement:}
+\begin{lstlisting}[language=SQL]
+SELECT E.Fname, E.Lname
+FROM EMPLOYEE E, WORKS_ON W, PROJECT P
+WHERE E.Ssn = W.Essn 
+  AND W.Pno = P.Pnumber
+  AND P.Pname = 'ProductX';
+\end{lstlisting}
+
+\vspace{0.3cm}
+\subsubsection*{ข้อที่ 1.2: หาพนักงานที่ทำงานใน \underline{ทุกๆ โปรเจกต์} ควบคุมโดยแผนก 5 (Division)}
+
+\textbf{RA:}\\
+$ E_{\text{all}} = \pi_{\text{Ssn}}(\text{EMPLOYEE}) \times \pi_{\text{Pnumber}}(\sigma_{\text{Dnum}=5}(\text{PROJECT})) $ \\
+$ E_{\text{work}} = \pi_{\text{Essn}, \text{Pno}}(\text{WORKS\_ON}) $ \\
+$ E_{\text{ans}} = \pi_{\text{Ssn}}(\text{EMPLOYEE}) - \pi_{\text{Ssn}}(E_{\text{all}} - E_{\text{work}}) $ \\
+$ \pi_{\text{Fname}, \text{Lname}} (\text{EMPLOYEE} \bowtie E_{\text{ans}}) $ \\
+\textit{หรือใช้ Division:}\\
+$ \pi_{\text{Fname}, \text{Lname}} \big(\text{EMPLOYEE} \bowtie ( \pi_{\text{Essn}, \text{Pno}}(\text{WORKS\_ON}) $ \\
+$ \quad \div \pi_{\text{Pnumber}}(\sigma_{\text{Dnum}=5}(\text{PROJECT})) ) \big) $
+
+\textbf{TRC:}\\
+$ \{ e.\text{Fname}, e.\text{Lname} \mid e \in \text{EMPLOYEE} \land \forall p \in \text{PROJECT} $ \\
+$ \quad (p.\text{Dnum}=5 \rightarrow \exists w \in \text{WORKS\_ON} (w.\text{Pno} = p.\text{Pnumber} \land w.\text{Essn} = e.\text{Ssn})) \} $
+
+\textbf{DRC:}\\
+$ \{ FN, LN \mid \exists Ssn, \dots (\text{EMPLOYEE}(Ssn, FN, \dots) \land \forall Pno, \dots (\neg \text{PROJECT}(Pno, \dots, 5) $ \\
+$ \quad \lor \exists Hrs (\text{WORKS\_ON}(Ssn, Pno, Hrs)))) \} $
+
+\textbf{SQL Statement:}
+\begin{lstlisting}[language=SQL]
+SELECT Fname, Lname 
+FROM EMPLOYEE E
+WHERE NOT EXISTS (
+    SELECT Pnumber FROM PROJECT P
+    WHERE Dnum = 5 AND NOT EXISTS (
+        SELECT 1 FROM WORKS_ON W 
+        WHERE W.Pno = P.Pnumber AND W.Essn = E.Ssn
+    )
+); 
+\end{lstlisting}
+
+\vspace{0.3cm}
+\subsubsection*{ข้อที่ 1.3: หาพนักงานที่ \underline{ไม่มีผู้ผู้อยู่ในอุปการะ} (No Dependents)}
+
+\textbf{RA:}\\
+$ E_{\text{has\_dep}} = \pi_{\text{Essn}}(\text{DEPENDENT}) $ \\
+$ E_{\text{no\_dep}} = \pi_{\text{Ssn}}(\text{EMPLOYEE}) - E_{\text{has\_dep}} $ \\
+$ \pi_{\text{Fname}, \text{Lname}} (\text{EMPLOYEE} \bowtie E_{\text{no\_dep}}) $
+
+\textbf{TRC:}\\
+$ \{ e.\text{Fname}, e.\text{Lname} \mid e \in \text{EMPLOYEE} \land \neg(\exists d \in \text{DEPENDENT} (d.\text{Essn} = e.\text{Ssn})) \} $
+
+\textbf{DRC:}\\
+$ \{ FN, LN \mid \exists Ssn, \dots (\text{EMPLOYEE}(Ssn, FN, \dots) \land \neg(\exists Dname, \dots (\text{DEPENDENT}(Ssn, Dname, \dots)))) \} $
+
+\textbf{SQL Statement:}
+\begin{lstlisting}[language=SQL]
+SELECT Fname, Lname
+FROM EMPLOYEE E
+WHERE NOT EXISTS (
+    SELECT 1 FROM DEPENDENT D
+    WHERE D.Essn = E.Ssn
+);
+\end{lstlisting}
+
+\subsubsection*{ข้อที่ 2: Normalization}
+\textbf{แผนภาพแสดงความสัมพันธ์ (Functional Dependency Diagram) ก่อนเริ่มทำ:}
+
+\vspace{0.3cm}
+\begin{center}
+\resizebox{0.9\textwidth}{!}{
+\begin{tikzpicture}[
+    cell/.style={draw, rectangle, minimum height=0.7cm, text centered, inner sep=0.15cm, font=\sffamily},
+    every node/.style={outer sep=0pt}
+]
+\node[font=\large\bfseries, align=left, anchor=south west, inner sep=0.1cm, draw=none] at (0, 0.4) {GAME\_QUEST\_STUDIO (Original)};
+
+\node[cell, fill=gray!15] (a1) at (0,0) {\underline{GameTitle}};
+\node[cell, fill=gray!15, right=0cm of a1] (a2) {\underline{QuestNo}};
+\node[cell, right=0cm of a2] (a3) {QuestTitle};
+\node[cell, right=0cm of a3] (a4) {QuestType};
+\node[cell, right=0cm of a4] (a5) {RewardEXP};
+\node[cell, right=0cm of a5] (a6) {Studio};
+\node[cell, right=0cm of a6] (a7) {RelYear};
+\node[cell, right=0cm of a7] (a8) {Publisher};
+\node[cell, right=0cm of a8] (a9) {GameSize};
+\node[cell, right=0cm of a9] (a10) {Country};
+\node[cell, right=0cm of a10] (a11) {Specialty};
+
+% FD1: {GameTitle, QuestNo} -> QuestTitle, QuestType, RewardEXP (Full Dependency)
+\draw (a1.south) -- +(0,-0.6) coordinate (y1);
+\draw (a2.south) -- +(0,-0.6) coordinate (y2);
+\draw (y1) -- (y2);
+\coordinate (ymid) at ($(y1)!0.5!(y2)$);
+\draw[-latex] (ymid) -- +(0,-0.4) -| (a3.south);
+\draw[-latex] (ymid) -- +(0,-0.4) -| (a4.south);
+\draw[-latex] (ymid) -- +(0,-0.4) -| (a5.south);
+
+% FD2: GameTitle -> Studio, RelYear, Publisher, GameSize (Partial Dependency)
+\draw (a1.north) -- +(0,0.6) coordinate (n1);
+\draw[-latex] (n1) -| (a6.north);
+\draw[-latex] (n1) -| (a7.north);
+\draw[-latex] (n1) -| (a8.north);
+\draw[-latex] (n1) -| (a9.north);
+
+% FD3: Studio -> Country, Specialty (Transitive Dependency)
+\draw (a6.south) -- +(0,-0.3) coordinate (y3);
+\draw[-latex, dashed] (y3) -- +(0,-0.7) -| (a10.south);
+\draw[-latex, dashed] (y3) -- +(0,-0.7) -| (a11.south);
+
+\end{tikzpicture}
+}
+\end{center}
+
+\textbf{2.1 สถานะ Normal Form (3 คะแนน):}
+ตาราง \texttt{GAME\_QUEST\_STUDIO} จัดว่าอยู่ใน \textbf{1NF} เท่านั้น เนื่องจากมี \textbf{Partial Dependency} (ขัดกับกฎ 2NF) 
+อธิบาย: \texttt{GameTitle $\rightarrow$ Studio, RelYear, Publisher, GameSize} (FD2) เป็นการพึ่งพาสายหลักที่ไม่ได้ขึ้นกับ Primary Key ทั้งก้อน (ไม่ได้ขึ้นกับ QuestNo)
+
+\vspace{0.3cm}
+\textbf{2.2 แบ่งตารางเป็น 2NF (3 คะแนน):}
+ต้องแยกแอตทริบิวต์ที่เกิด Partial Dependency ออกจากคีย์หลัก:
+
+\vspace{0.2cm}
+\begin{center}
+\resizebox{0.85\textwidth}{!}{
+\begin{tikzpicture}[
+    cell/.style={draw, rectangle, minimum height=0.7cm, text centered, inner sep=0.15cm, font=\sffamily},
+    every node/.style={outer sep=0pt}
+]
+% 2NF Normalization Text & Arrow
+\node[font=\large\bfseries, align=center] at (1, 1.5) {2NF Normalization};
+\draw[-latex, thick] (1, 1) -- (1, 0.2);
+
+% --- QUEST Table ---
+\node[font=\large\bfseries, align=left, anchor=south west, inner sep=0.1cm, draw=none] at (0, -0.6) {QUEST};
+\node[cell, fill=gray!15] (q1) at (0,-1) {\underline{GameTitle}};
+\node[cell, fill=gray!15, right=0cm of q1] (q2) {\underline{QuestNo}};
+\node[cell, right=0cm of q2] (q3) {QuestTitle};
+\node[cell, right=0cm of q3] (q4) {QuestType};
+\node[cell, right=0cm of q4] (q5) {RewardEXP};
+
+% FD1 for QUEST
+\draw (q1.south) -- +(0,-0.4) coordinate (qy1);
+\draw (q2.south) -- +(0,-0.4) coordinate (qy2);
+\draw (qy1) -- (qy2);
+\coordinate (qymid) at ($(qy1)!0.5!(qy2)$);
+\draw[-latex] (qymid) -- +(0,-0.4) -| (q3.south);
+\draw[-latex] (qymid) -- +(0,-0.4) -| (q4.south);
+\draw[-latex] (qymid) -- +(0,-0.4) -| (q5.south);
+\node[anchor=east] at (qy1) {FD1\ \ \ };
+
+% --- GAME_INFO Table ---
+\node[cell, fill=gray!15, right=1cm of q5] (g1) {\underline{GameTitle}};
+\node[font=\large\bfseries, align=left, anchor=south west, inner sep=0.1cm, draw=none] at ([yshift=0.4cm]g1.north west) {GAME\_INFO};
+\node[cell, right=0cm of g1] (g2) {Studio};
+\node[cell, right=0cm of g2] (g3) {RelYear};
+\node[cell, right=0cm of g3] (g4) {Publisher};
+\node[cell, right=0cm of g4] (g5) {GameSize};
+\node[cell, right=0cm of g5] (g6) {Country};
+\node[cell, right=0cm of g6] (g7) {Specialty};
+
+% FD2 for GAME_INFO
+\draw (g1.south) -- +(0,-0.4) coordinate (gy1);
+\draw[-latex] (gy1) -- +(0,-0.4) -| (g2.south);
+\draw[-latex] (gy1) -- +(0,-0.4) -| (g3.south);
+\draw[-latex] (gy1) -- +(0,-0.4) -| (g4.south);
+\draw[-latex] (gy1) -- +(0,-0.4) -| (g5.south);
+\node[anchor=east] at (gy1) {FD2\ \ \ };
+
+% FD3 for GAME_INFO
+\draw (g2.south) -- +(0,-1.2) coordinate (gy2);
+\draw[-latex] (gy2) -- +(0,-0.4) -| (g6.south);
+\draw[-latex] (gy2) -- +(0,-0.4) -| (g7.south);
+\node[anchor=east] at (gy2) {FD3\ \ \ };
+
+\end{tikzpicture}
+}
+\end{center}
+\vspace{0.2cm}
+
+\begin{itemize}
+    \item \textbf{QUEST} (\uline{GameTitle} (FK), \uline{QuestNo}, QuestTitle, QuestType, RewardEXP)
+    \item \textbf{GAME\_INFO} (\uline{GameTitle}, Studio, RelYear, Publisher, GameSize, Country, Specialty)
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{2.3 แบ่งตารางเป็น 3NF (4 คะแนน):}
+ตาราง \texttt{GAME\_INFO} ใน 2NF มีปัญหา \textbf{Transitive Dependency} เพราะ \texttt{Studio $\rightarrow$ Country, Specialty} (FD3) ข้อมูลประเทศกับความถนัดขึ้นอยู่กับแค่ตัวสตูดิโอ ไม่ได้ขึ้นอยู่กับชื่อเกม จึงต้องแยกตารางสตูดิโอออกมา:
+\vspace{0.2cm}
+
+\begin{center}
+\resizebox{0.7\textwidth}{!}{
+\begin{tikzpicture}[
+    cell/.style={draw, rectangle, minimum height=0.7cm, text centered, inner sep=0.15cm, font=\sffamily},
+    every node/.style={outer sep=0pt}
+]
+% 3NF Normalization Text & Arrow
+\node[font=\large\bfseries, align=center] at (1, 1.5) {3NF Normalization};
+\draw[-latex, thick] (1, 1) -- (1, 0.2);
+
+% --- GAME Table ---
+\node[font=\large\bfseries, align=left, anchor=south west, inner sep=0.1cm, draw=none] at (0, -0.6) {GAME};
+\node[cell, fill=gray!15] (gg1) at (0,-1) {\underline{GameTitle}};
+\node[cell, right=0cm of gg1] (gg2) {Studio};
+\node[cell, right=0cm of gg2] (gg3) {RelYear};
+\node[cell, right=0cm of gg3] (gg4) {Publisher};
+\node[cell, right=0cm of gg4] (gg5) {GameSize};
+
+% FD2 for GAME
+\draw (gg1.south) -- +(0,-0.4) coordinate (ggy1);
+\draw[-latex] (ggy1) -- +(0,-0.4) -| (gg2.south);
+\draw[-latex] (ggy1) -- +(0,-0.4) -| (gg3.south);
+\draw[-latex] (ggy1) -- +(0,-0.4) -| (gg4.south);
+\draw[-latex] (ggy1) -- +(0,-0.4) -| (gg5.south);
+\node[anchor=east] at (ggy1) {FD2\ \ \ };
+
+% --- STUDIO_INFO Table ---
+\node[cell, fill=gray!15, right=1cm of gg5] (s1) {\underline{Studio}};
+\node[font=\large\bfseries, align=left, anchor=south west, inner sep=0.1cm, draw=none] at ([yshift=0.4cm]s1.north west) {STUDIO\_INFO};
+\node[cell, right=0cm of s1] (s2) {Country};
+\node[cell, right=0cm of s2] (s3) {Specialty};
+
+% FD3 for STUDIO_INFO
+\draw (s1.south) -- +(0,-0.4) coordinate (sy1);
+\draw[-latex] (sy1) -- +(0,-0.4) -| (s2.south);
+\draw[-latex] (sy1) -- +(0,-0.4) -| (s3.south);
+\node[anchor=east] at (sy1) {FD3\ \ \ };
+
+\end{tikzpicture}
+}
+\end{center}
+\vspace{0.2cm}
+
+\textbf{ผลลัพธ์สุดท้าย (Schema ของ 3NF):}
+\begin{itemize}
+    \item \textbf{QUEST} (\uline{GameTitle} (FK), \uline{QuestNo}, QuestTitle, QuestType, RewardEXP)
+    \item \textbf{GAME} (\uline{GameTitle}, Studio (FK), RelYear, Publisher, GameSize)
+    \item \textbf{STUDIO\_INFO} (\uline{Studio}, Country, Specialty)
+\end{itemize}
+
+\textbf{ตัวอย่างข้อมูลในตารางใหม่ที่ถูกแยก (STUDIO\_INFO):}
+\begin{table}[H]
+    \centering
+    \footnotesize
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \rowcolor{cyan!20}
+        \textbf{Studio} (PK) & \textbf{Country} & \textbf{Specialty} \\
+        \hline
+        Bethesda & USA & RPG \\
+        CDPR & Poland & ARPG \\
+        Larian & Belgium & CRPG \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\end{document}
