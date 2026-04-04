@@ -12,6 +12,7 @@ import customersRoutes from "./routes/customers.routes.js";
 import productsRoutes from "./routes/products.routes.js";
 import salesPersonsRoutes from "./routes/salesPersons.routes.js";
 import paymentsRoutes from "./routes/payments.routes.js";
+import configurationsRoutes from "./routes/configurations.routes.js";
 
 const app = express();
 
@@ -111,6 +112,7 @@ app.use("/api/invoices", invoicesRoutes);
 app.use("/api/sales-persons", salesPersonsRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/reports", reportsRoutes);
+app.use("/api/configurations", configurationsRoutes);
 
 const port = process.env.PORT || 4000;
 const host = process.env.HOST || "0.0.0.0";

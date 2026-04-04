@@ -84,9 +84,34 @@ export default function InvoiceForm({ onSubmit, submitting, initialData }) {
     }
   }, [initialData]);
 
-  const subtotal = items.reduce((s, it) => s + Number(it.quantity || 0) * Number(it.unit_price || 0), 0);
-  const vat = subtotal * Number(vatRate || 0);
-  const amountDue = subtotal + vat;
+  const totals = React.useMemo(() => {
+    let total_price = 0;
+    let total_discount = 0;
+
+    (items || []).forEach(li => {
+      const qty = Number(li.quantity) || 0;
+      const price = Number(li.unit_price) || 0;
+      const discountPercent = Number(li.line_discount_percent) || 0;
+
+      const extendedPrice = qty * price;
+      const discountAmount = Math.round(extendedPrice * (discountPercent / 100) * 100) / 100;
+      
+      total_price += extendedPrice;
+      total_discount += discountAmount;
+    });
+
+    const net_price = total_price - total_discount;
+    const vat_amount = net_price * Number(vatRate || 0);
+    const amount_due = net_price + vat_amount;
+
+    return {
+      total_price,
+      total_discount,
+      net_price,
+      vat_amount,
+      amount_due
+    };
+  }, [items, vatRate]);
 
   const [autoCode, setAutoCode] = React.useState(true);
 
@@ -148,6 +173,7 @@ export default function InvoiceForm({ onSubmit, submitting, initialData }) {
           product_code: String(x.product_code || "").trim(),
           quantity: Number(x.quantity),
           unit_price: x.unit_price === "" || x.unit_price === null ? undefined : Number(x.unit_price),
+          line_discount_percent: Number(x.line_discount_percent || 0),
         };
         if (x.line_item_id != null && Number(x.line_item_id) > 0) out.id = Number(x.line_item_id);
         return out;
@@ -353,16 +379,24 @@ export default function InvoiceForm({ onSubmit, submitting, initialData }) {
           <h4>Summary</h4>
           <div style={{ display: "grid", gap: 8 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem", color: "var(--text-muted)" }}>
-              <span>Subtotal</span>
-              <span className="amount">{submitting ? "..." : formatBaht(subtotal)}</span>
+              <span>Total Price</span>
+              <span className="amount">{submitting ? "..." : formatBaht(totals.total_price)}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem", color: "var(--text-muted)" }}>
+              <span>Total Discount</span>
+              <span className="amount" style={{ color: "var(--danger)" }}>{submitting ? "..." : formatBaht(-totals.total_discount)}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem", color: "var(--text-muted)" }}>
+              <span>Net Price</span>
+              <span className="amount">{submitting ? "..." : formatBaht(totals.net_price)}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem", color: "var(--text-muted)" }}>
               <span>VAT ({(vatRate * 100).toFixed(0)}%)</span>
-              <span className="amount">{submitting ? "..." : formatBaht(vat)}</span>
+              <span className="amount">{submitting ? "..." : formatBaht(totals.vat_amount)}</span>
             </div>
             <div style={{ borderTop: "1px solid var(--border)", paddingTop: 10, marginTop: 2, display: "flex", justifyContent: "space-between", fontSize: "1.1rem", fontWeight: 700, color: "var(--primary)" }}>
-              <span>Total</span>
-              <span>{submitting ? "..." : formatBaht(amountDue)}</span>
+              <span>Amount Due</span>
+              <span>{submitting ? "..." : formatBaht(totals.amount_due)}</span>
             </div>
           </div>
           <div style={{ marginTop: 16 }}>

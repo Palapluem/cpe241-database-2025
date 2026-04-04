@@ -70,16 +70,16 @@ export async function getInvoice(idOrInvoiceNo) {
 
   const header = await pool.query(
     `
-      select i.invoice_no, i.invoice_date, i.total_amount, i.vat, i.amount_due,
+      select i.id, i.invoice_no, i.invoice_date, i.total_amount, i.vat, i.amount_due,
              c.code as customer_code, c.name as customer_name,
              c.address_line1, c.address_line2,
-              co.name as country_name,
-              sp.code as sales_person_code,
-              sp.name as sales_person_name
+             co.name as country_name,
+             sp.code as sales_person_code,
+             sp.name as sales_person_name
       from invoice i
       join customer c on c.id = i.customer_id
       left join country co on co.id = c.country_id
-            left join sales_person sp on sp.id = i.sales_person_id
+      left join sales_person sp on sp.id = i.sales_person_id
       where i.id = $1
     `,
     [id],
@@ -92,7 +92,8 @@ export async function getInvoice(idOrInvoiceNo) {
       select li.id,
              p.code as product_code, p.name as product_name,
              u.code as units_code,
-             li.quantity, li.unit_price, li.extended_price
+             li.quantity, li.unit_price, li.extended_price,
+             coalesce(li.line_discount_percent, 0.00) as line_discount_percent
       from invoice_line_item li
       join product p on p.id = li.product_id
       join units u on u.id = p.units_id
@@ -102,8 +103,63 @@ export async function getInvoice(idOrInvoiceNo) {
     [id],
   );
 
-  return { header: header.rows[0], line_items: lines.rows };
+  const configRes = await pool.query("SELECT vat_percent FROM configuration ORDER BY id LIMIT 1");
+  const default_vat_percent = configRes.rowCount > 0 ? Number(configRes.rows[0].vat_percent) : 7.00;
+
+  // Calculate dynamic fields for line items and header
+  let total_price = 0;
+  let total_discount = 0;
+
+  const computedLines = lines.rows.map(li => {
+    const qty = Number(li.quantity || 0);
+    const unitPrice = Number(li.unit_price || 0);
+    const extendPrice = qty * unitPrice;
+    
+    // Rounding function
+    const round2 = (num) => Math.round(num * 100) / 100;
+
+    const discountPercent = Number(li.line_discount_percent || 0);
+    const discountAmount = round2(extendPrice * (discountPercent / 100));
+    const netPrice = round2(extendPrice - discountAmount);
+
+    total_price += extendPrice;
+    total_discount += discountAmount;
+
+    return {
+      ...li,
+      extended_price: extendPrice,
+      line_extended_price: extendPrice,
+      line_discount_percent: discountPercent,
+      line_discount_amount: discountAmount,
+      line_net_price: netPrice
+    };
+  });
+
+  const round2 = (num) => Math.round(num * 100) / 100;
+  const net_price = round2(total_price - total_discount);
+  
+  // Instead of recalculating VAT from config if not needed, we can determine roughly the vat_percent 
+  // or return the values as instructed. We'll use the default vat_percent if it matches or compute it.
+  const stored_amount_due = Number(header.rows[0].amount_due || 0);
+  const stored_vat = Number(header.rows[0].vat || 0);
+  
+  // To avoid mismatch, we compute based on current DB values but supply the required returns
+  const expected_vat_percent = net_price > 0 ? round2((stored_vat / net_price) * 100) : default_vat_percent;
+
+  const returnHeader = {
+    ...header.rows[0],
+    total_price: round2(total_price),
+    total_discount: round2(total_discount),
+    net_price: net_price,
+    vat_percent: expected_vat_percent,
+    vat_amount: stored_vat, // from invoice.vat
+    amount_due: stored_amount_due // from invoice.amount_due
+  };
+
+  return { header: returnHeader, line_items: computedLines };
 }
+
+const round2 = (num) => Math.round(num * 100) / 100;
 
 /** Resolve product_code to id and get unit_price. line_items use product_code (not product_id). */
 async function enrichLineItems(client, line_items) {
@@ -118,8 +174,20 @@ async function enrichLineItems(client, line_items) {
     if (pr.rowCount === 0) throw new Error(`Product not found: ${product_code}`);
     const product_id = pr.rows[0].id;
     const unit_price = li.unit_price ?? Number(pr.rows[0].unit_price ?? 0);
-    const extended_price = Number(li.quantity) * Number(unit_price);
-    enriched.push({ ...li, product_id, unit_price, extended_price });
+    const extended_price = round2(Number(li.quantity) * Number(unit_price));
+    const line_discount_percent = Number(li.line_discount_percent || 0);
+    const line_discount_amount = round2(extended_price * (line_discount_percent / 100));
+    const line_net_price = round2(extended_price - line_discount_amount);
+
+    enriched.push({ 
+      ...li, 
+      product_id, 
+      unit_price, 
+      extended_price,
+      line_discount_percent,
+      line_discount_amount,
+      line_net_price
+    });
   }
   return enriched;
 }
@@ -151,9 +219,14 @@ export async function createInvoice({ invoice_no, customer_code, sales_person_co
 
     const enriched = await enrichLineItems(client, line_items);
 
-    const total = enriched.reduce((s, x) => s + x.extended_price, 0);
-    const vat = total * vat_rate;
-    const amount_due = total + vat;
+    const total_price = enriched.reduce((s, x) => s + x.extended_price, 0);
+    const total_discount = enriched.reduce((s, x) => s + x.line_discount_amount, 0);
+    const net_price = round2(total_price - total_discount);
+    // API logic: handle vat_percent properly. vat_rate comes from request (e.g. 0.07 or 7 depending on UI).
+    // Usually vat_rate means 0.07. But if UI sends vat_percent=7, API might translate to 0.07.
+    // Let's assume vat_rate is a decimal fraction like 0.07. 
+    const vat = round2(net_price * vat_rate);
+    const amount_due = round2(net_price + vat);
 
     if (cust.rows[0].credit_limit != null) {
       const limit = Number(cust.rows[0].credit_limit);
@@ -172,7 +245,7 @@ export async function createInvoice({ invoice_no, customer_code, sales_person_co
         )
         returning id, invoice_no
       `,
-      [resolvedInvoiceNo, invoice_date, customer_id, sales_person_id, total, vat, amount_due],
+      [resolvedInvoiceNo, invoice_date, customer_id, sales_person_id, total_price, vat, amount_due],
     );
 
     const invoice_id = inv.rows[0].id;
@@ -180,14 +253,14 @@ export async function createInvoice({ invoice_no, customer_code, sales_person_co
     for (const li of enriched) {
       await client.query(
         `
-          insert into invoice_line_item (id, created_at, invoice_id, product_id, quantity, unit_price, extended_price)
+          insert into invoice_line_item (id, created_at, invoice_id, product_id, quantity, unit_price, extended_price, line_discount_percent)
           values (
             (select coalesce(max(id),0)+1 from invoice_line_item),
             now(),
-            $1,$2,$3,$4,$5
+            $1,$2,$3,$4,$5,$6
           )
         `,
-        [invoice_id, li.product_id, li.quantity, li.unit_price, li.extended_price],
+        [invoice_id, li.product_id, li.quantity, li.unit_price, li.extended_price, li.line_discount_percent],
       );
     }
 
@@ -244,9 +317,13 @@ export async function updateInvoice(
 
     const enriched = await enrichLineItems(client, line_items);
 
-    const total = enriched.reduce((s, x) => s + x.extended_price, 0);
-    const vat = total * vat_rate;
-    const amount_due = total + vat;
+    const total_price = enriched.reduce((s, x) => s + x.extended_price, 0);
+    const total_discount = enriched.reduce((s, x) => s + x.line_discount_amount, 0);
+    const net_price = round2(total_price - total_discount);
+    // API logic: handle vat_percent properly. vat_rate comes from request (e.g. 0.07 or 7 depending on UI).
+    // Let's assume vat_rate is a decimal fraction like 0.07. 
+    const vat = round2(net_price * vat_rate);
+    const amount_due = round2(net_price + vat);
 
     if (cust.rows[0].credit_limit != null) {
       const limit = Number(cust.rows[0].credit_limit);
@@ -268,7 +345,7 @@ export async function updateInvoice(
         SET invoice_no=$1, invoice_date=$2, customer_id=$3, sales_person_id=$4, total_amount=$5, vat=$6, amount_due=$7
         WHERE id=$8
       `,
-      [resolvedInvoiceNo, invoice_date, customer_id, sales_person_id, total, vat, amount_due, id],
+      [resolvedInvoiceNo, invoice_date, customer_id, sales_person_id, total_price, vat, amount_due, id],
     );
 
     const keptLineIds = line_items.filter((li) => li.id != null && Number(li.id) > 0).map((li) => Number(li.id));
@@ -284,27 +361,26 @@ export async function updateInvoice(
 
     for (const li of enriched) {
       const lineId = li.id != null && Number(li.id) > 0 ? Number(li.id) : null;
-      const extended_price = Number(li.quantity || 0) * Number(li.unit_price || 0);
       if (lineId) {
         await client.query(
           `
             UPDATE invoice_line_item
-            SET product_id=$1, quantity=$2, unit_price=$3, extended_price=$4
-            WHERE id=$5 AND invoice_id=$6
+            SET product_id=$1, quantity=$2, unit_price=$3, extended_price=$4, line_discount_percent=$5
+            WHERE id=$6 AND invoice_id=$7
           `,
-          [li.product_id, li.quantity, li.unit_price, extended_price, lineId, id],
+          [li.product_id, li.quantity, li.unit_price, li.extended_price, li.line_discount_percent, lineId, id],
         );
       } else {
         await client.query(
           `
-            INSERT INTO invoice_line_item (id, created_at, invoice_id, product_id, quantity, unit_price, extended_price)
+            INSERT INTO invoice_line_item (id, created_at, invoice_id, product_id, quantity, unit_price, extended_price, line_discount_percent)
             VALUES (
               (select coalesce(max(id),0)+1 from invoice_line_item),
               now(),
-              $1,$2,$3,$4,$5
+              $1,$2,$3,$4,$5,$6
             )
           `,
-          [id, li.product_id, li.quantity, li.unit_price, extended_price],
+          [id, li.product_id, li.quantity, li.unit_price, li.extended_price, li.line_discount_percent],
         );
       }
     }
@@ -319,4 +395,3 @@ export async function updateInvoice(
     client.release();
   }
 }
-

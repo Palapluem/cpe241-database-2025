@@ -188,13 +188,16 @@ export default function LineItemsEditor({ value, onChange }) {
                     <thead>
                         <tr>
                             <th style={{ width: '60px' }} className="text-center">#</th>
-                            <th style={{ width: '18%' }}>Product Code <span className="required-marker">*</span></th>
-                            <th style={{ width: '22%' }}>Product Name</th>
-                            <th style={{ width: '8%' }} className="text-center">Unit</th>
-                            <th style={{ width: '10%' }} className="text-right">Qty <span className="required-marker">*</span></th>
-                            <th style={{ width: '12%' }} className="text-right">Unit Price <span className="required-marker">*</span></th>
-                            <th style={{ width: '12%' }} className="text-right">Extended</th>
-                            <th style={{ width: '100px' }} className="text-center">Actions</th>
+                            <th style={{ width: '15%' }}>Product Code <span className="required-marker">*</span></th>
+                            <th style={{ width: '18%' }}>Product Name</th>
+                            <th style={{ width: '6%' }} className="text-center">Unit</th>
+                            <th style={{ width: '8%' }} className="text-right">Qty <span className="required-marker">*</span></th>
+                            <th style={{ width: '10%' }} className="text-right">Unit Price <span className="required-marker">*</span></th>
+                            <th style={{ width: '10%' }} className="text-right">Extended</th>
+                            <th style={{ width: '8%' }} className="text-right">Discount %</th>
+                            <th style={{ width: '9%' }} className="text-right">Discount Amt</th>
+                            <th style={{ width: '10%' }} className="text-right">Net Price</th>
+                            <th style={{ width: '80px' }} className="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -227,7 +230,7 @@ export default function LineItemsEditor({ value, onChange }) {
                         ))}
                         {items.length === 0 && (
                             <tr>
-                                <td colSpan="8" style={{ 
+                                <td colSpan="11" style={{ 
                                     padding: 40, 
                                     textAlign: 'center',
                                     color: 'var(--text-muted)'

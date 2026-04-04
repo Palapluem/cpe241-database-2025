@@ -152,6 +152,9 @@ export default function InvoicePage({ mode: propMode }) {
                                     <th className="text-right">Qty</th>
                                     <th className="text-right">Unit Price</th>
                                     <th className="text-right">Extended</th>
+                                    <th className="text-right">Discount %</th>
+                                    <th className="text-right">Discount Amt</th>
+                                    <th className="text-right">Net Price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -162,6 +165,9 @@ export default function InvoicePage({ mode: propMode }) {
                                         <td className="text-right">{Number(li.quantity || 0).toFixed(2)}</td>
                                         <td className="text-right">{formatBaht(li.unit_price)}</td>
                                         <td className="text-right font-bold">{formatBaht(li.extended_price)}</td>
+                                        <td className="text-right">{Number(li.line_discount_percent || 0).toFixed(2)}%</td>
+                                        <td className="text-right">{formatBaht(li.line_discount_amount || 0)}</td>
+                                        <td className="text-right font-bold text-primary">{formatBaht(li.line_net_price || li.extended_price)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -172,17 +178,25 @@ export default function InvoicePage({ mode: propMode }) {
                         <div className="no-print text-muted" style={{ maxWidth: 300, fontSize: '0.8rem' }}>
                             Thank you for your business. Please pay within 30 days.
                         </div>
-                        <div style={{ minWidth: 200 }}>
+                        <div style={{ minWidth: 250 }}>
                             <div className="flex justify-between mb-2">
-                                <span>Subtotal:</span>
-                                <span>{formatBaht(h.total_amount)}</span>
+                                <span>Total Price:</span>
+                                <span>{formatBaht(h.total_price || h.total_amount)}</span>
+                            </div>
+                            <div className="flex justify-between mb-2 text-danger">
+                                <span>Total Discount:</span>
+                                <span>-{formatBaht(h.total_discount || 0)}</span>
+                            </div>
+                            <div className="flex justify-between mb-2 font-bold">
+                                <span>Net Price:</span>
+                                <span>{formatBaht(h.net_price || h.total_amount)}</span>
                             </div>
                             <div className="flex justify-between mb-2">
-                                <span>VAT:</span>
+                                <span>VAT ({(h.vat_percent || 7)}%):</span>
                                 <span>{formatBaht(h.vat)}</span>
                             </div>
-                            <div className="flex justify-between mt-4 p-2 bg-body font-bold" style={{ fontSize: '1.1rem' }}>
-                                <span>Total Due:</span>
+                            <div className="flex justify-between mt-4 p-2 bg-body font-bold" style={{ fontSize: '1.2rem', color: 'var(--primary)' }}>
+                                <span>Amount Due:</span>
                                 <span>{formatBaht(h.amount_due)}</span>
                             </div>
                         </div>

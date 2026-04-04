@@ -196,6 +196,28 @@ export default function LineItemRow({
         </div>
       </td>
       <td>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          max="100"
+          value={it.line_discount_percent ?? ""}
+          onChange={(e) => update(i, { line_discount_percent: e.target.value })}
+          className="form-control"
+          style={{ textAlign: "right", padding: "8px 12px", fontSize: "0.9rem" }}
+        />
+      </td>
+      <td>
+        <div style={{ textAlign: "right", color: "var(--text-muted)", fontSize: "0.95rem" }}>
+          {formatBaht(Math.round(computeExtended(it) * (Number(it.line_discount_percent || 0) / 100) * 100) / 100)}
+        </div>
+      </td>
+      <td>
+        <div style={{ textAlign: "right", fontWeight: 600, color: "var(--primary)", fontSize: "0.95rem" }}>
+          {formatBaht(Math.round((computeExtended(it) - Math.round(computeExtended(it) * (Number(it.line_discount_percent || 0) / 100) * 100) / 100) * 100) / 100)}
+        </div>
+      </td>
+      <td>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
           <button type="button" onClick={() => moveUp(i)} disabled={i === 0} style={i === 0 ? disabledBtnStyle : actionBtnStyle} title="Move up">
             <ArrowUpIcon />

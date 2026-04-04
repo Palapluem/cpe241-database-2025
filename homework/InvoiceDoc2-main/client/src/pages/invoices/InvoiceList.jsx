@@ -37,7 +37,14 @@ export default function InvoiceList() {
         { key: "customer_name", label: "Customer" },
         { key: "sales_person_name", label: "Sales Person", render: (v) => v || "-" },
         { key: "invoice_date", label: "Date", render: v => formatDate(v) },
-        { key: "amount_due", label: "Amount Due", align: "right", render: v => <span className="font-bold">{formatBaht(v)}</span> }
+        { key: "amount_due", label: "Amount Due", align: "right", render: (v, item) => (
+            <div className="flex flex-column text-right">
+                <span className="font-bold text-primary">{formatBaht(v)}</span>
+                {item.total_discount > 0 && (
+                    <span className="text-danger" style={{ fontSize: '0.8rem' }}>Disc: -{formatBaht(item.total_discount)}</span>
+                )}
+            </div>
+        )}
     ];
 
     return (
