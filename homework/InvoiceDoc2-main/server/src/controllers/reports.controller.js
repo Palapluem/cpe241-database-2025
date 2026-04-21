@@ -1,4 +1,4 @@
-// Report API handlers: sales by product, monthly sales, customer buying. All use parameterized queries.
+﻿// Report API handlers: sales by product, monthly sales, customer buying. All use parameterized queries.
 import * as reportsService from "../services/reports.service.js";
 import { sendList, sendData, sendError } from "../utils/response.js";
 
@@ -33,6 +33,33 @@ export async function getSalesByCustomerSummary(req, res) {
 export async function getSalesByProductMonthlySummary(req, res) {
   try {
     const result = await reportsService.getSalesByProductMonthlySummary(req.query);
+    sendList(res, result);
+  } catch (err) {
+    sendError(res, err?.message ?? String(err), 500);
+  }
+}
+
+export async function getCustomerOutstandingSummary(req, res) {
+  try {
+    const result = await reportsService.getCustomerOutstandingSummary(req.query);
+    sendList(res, result);
+  } catch (err) {
+    sendError(res, err?.message ?? String(err), 500);
+  }
+}
+
+export async function getReceiptListReport(req, res) {
+  try {
+    const result = await reportsService.getReceiptListReport(req.query);
+    sendList(res, result);
+  } catch (err) {
+    sendError(res, err?.message ?? String(err), 500);
+  }
+}
+
+export async function getInvoiceReceiptsReport(req, res) {
+  try {
+    const result = await reportsService.getInvoiceReceiptsReport(req.query);
     sendList(res, result);
   } catch (err) {
     sendError(res, err?.message ?? String(err), 500);

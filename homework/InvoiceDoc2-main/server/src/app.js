@@ -13,6 +13,7 @@ import productsRoutes from "./routes/products.routes.js";
 import salesPersonsRoutes from "./routes/salesPersons.routes.js";
 import paymentsRoutes from "./routes/payments.routes.js";
 import configurationsRoutes from "./routes/configurations.routes.js";
+import receiptsRoutes from "./routes/receipts.routes.js";
 
 const app = express();
 
@@ -113,6 +114,7 @@ app.use("/api/sales-persons", salesPersonsRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/configurations", configurationsRoutes);
+app.use("/", receiptsRoutes); // the routes in receiptsRoutes already include /api/receipts and /api/receipt-invoices
 
 const port = process.env.PORT || 4000;
 const host = process.env.HOST || "0.0.0.0";

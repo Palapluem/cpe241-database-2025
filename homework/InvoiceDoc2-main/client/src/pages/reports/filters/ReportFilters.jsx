@@ -53,6 +53,37 @@ export default function ReportFilters({ type, filters, onChange, onApply, onRese
             />
           </>
         )}
+
+        {/* Receipt List Filters */}
+        {type === "receipt-list" && (
+          <>
+            <CustomerFilter value={filters.customerCode || ""} displayLabel={filters.customerLabel} onChange={handleChange} />
+            <DateRangeFilter 
+              dateFrom={filters.dateFrom || ""} 
+              dateTo={filters.dateTo || ""} 
+              onChange={handleChange} 
+            />
+          </>
+        )}
+
+        {/* Invoice Receipts Filters */}
+        {type === "invoice-receipts" && (
+          <>
+            <CustomerFilter value={filters.customerCode || ""} displayLabel={filters.customerLabel} onChange={handleChange} />
+            <DateRangeFilter 
+              dateFrom={filters.dateFrom || ""} 
+              dateTo={filters.dateTo || ""} 
+              onChange={handleChange} 
+            />
+          </>
+        )}
+
+        {/* Customer Outstanding Filters */}
+        {type === "customer-outstanding" && (
+          <>
+            <CustomerFilter value={filters.customerCode || ""} displayLabel={filters.customerLabel} onChange={handleChange} />
+          </>
+        )}
       </div>
 
       <div className="filters-actions">

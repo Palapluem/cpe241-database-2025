@@ -302,3 +302,197 @@ export async function getSalesByProductMonthlySummary({
   };
 }
 
+
+
+export async function getCustomerOutstandingSummary({ page = 1, limit = 10, sortBy = "amount_remain", sortDir = "desc" } = {}) {
+  const offset = (Number(page) - 1) * Number(limit);
+  
+  const allowedSort = {
+    customer_code: "c.code",
+    customer_name: "c.name",
+    amount_due: "SUM(v.amount_due)",
+    amount_already_received: "SUM(v.amount_already_received)",
+    amount_remain: "SUM(v.amount_remain)"
+  };
+  const sortColumn = allowedSort[sortBy] || allowedSort.amount_remain;
+  const sortDirection = sortDir === "asc" ? "ASC" : "DESC";
+
+  const countResult = await pool.query(
+    `SELECT COUNT(DISTINCT v.customer_id) as total
+     FROM invoice_received_view v
+     WHERE v.amount_remain > 0`
+  );
+  const total = Number(countResult.rows[0].total);
+
+  const { rows } = await pool.query(
+    `SELECT c.code as customer_code, c.name as customer_name, 
+             SUM(v.amount_due) as amount_due,
+             SUM(v.amount_already_received) as amount_already_received,
+             SUM(v.amount_remain) as amount_remain
+      FROM invoice_received_view v
+      JOIN customer c ON c.id = v.customer_id
+      WHERE v.amount_remain > 0
+      GROUP BY c.id, c.code, c.name
+      ORDER BY ${sortColumn} ${sortDirection}
+      LIMIT $1 OFFSET $2`,
+    [Number(limit), offset]
+  );
+  
+  return {
+    data: rows,
+    total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(total / Number(limit)),
+  };
+}
+
+export async function getReceiptListReport({
+  date_from,
+  date_to,
+  customer_code,
+  page = 1,
+  limit = 10,
+  sortBy = "receipt_date",
+  sortDir = "desc",
+} = {}) {
+  const offset = (Number(page) - 1) * Number(limit);
+  let resolvedCustomerId = null;
+  if (customer_code) {
+    const r = await pool.query("SELECT id FROM customer WHERE code = $1", [String(customer_code).trim()]);
+    if (r.rowCount > 0) resolvedCustomerId = r.rows[0].id;
+  }
+
+  let whereClause = "WHERE 1=1";
+  const params = [];
+  let paramIndex = 1;
+
+  if (resolvedCustomerId) {
+    whereClause += ` AND c.id = $${paramIndex++}`;
+    params.push(resolvedCustomerId);
+  }
+  if (date_from) {
+    whereClause += ` AND r.receipt_date >= $${paramIndex++}`;
+    params.push(date_from);
+  }
+  if (date_to) {
+    whereClause += ` AND r.receipt_date <= $${paramIndex++}`;
+    params.push(date_to);
+  }
+
+  const allowedSort = {
+    receipt_no: "r.receipt_no",
+    receipt_date: "r.receipt_date",
+    customer_code: "c.code",
+    total_received: "r.total_received",
+  };
+  const sortColumn = allowedSort[sortBy] || "r.receipt_date";
+  const sortDirection = sortDir === "asc" ? "ASC" : "DESC";
+
+  const countResult = await pool.query(
+    `SELECT COUNT(r.id) as total
+     FROM receipt r
+     JOIN customer c ON c.id = r.customer_id
+     ${whereClause}`,
+    params
+  );
+  const total = Number(countResult.rows[0].total);
+
+  const { rows } = await pool.query(
+    `SELECT r.receipt_no, r.receipt_date, c.code as customer_code, c.name as customer_name,
+            r.payment_method, r.payment_notes, r.total_received
+     FROM receipt r
+     JOIN customer c ON c.id = r.customer_id
+     ${whereClause}
+     ORDER BY ${sortColumn} ${sortDirection}
+     LIMIT $${paramIndex++} OFFSET $${paramIndex++}`,
+    [...params, Number(limit), offset]
+  );
+  
+  return {
+    data: rows,
+    total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(total / Number(limit)),
+  };
+}
+
+export async function getInvoiceReceiptsReport({
+  date_from,
+  date_to,
+  customer_code,
+  page = 1,
+  limit = 10,
+  sortBy = "invoice_no",
+  sortDir = "desc",
+} = {}) {
+  const offset = (Number(page) - 1) * Number(limit);
+  let resolvedCustomerId = null;
+  if (customer_code) {
+    const r = await pool.query("SELECT id FROM customer WHERE code = $1", [String(customer_code).trim()]);
+    if (r.rowCount > 0) resolvedCustomerId = r.rows[0].id;
+  }
+
+  let whereClause = "WHERE 1=1";
+  const params = [];
+  let paramIndex = 1;
+
+  if (resolvedCustomerId) {
+    whereClause += ` AND v.customer_id = $${paramIndex++}`;
+    params.push(resolvedCustomerId);
+  }
+  if (date_from) {
+    whereClause += ` AND i.invoice_date >= $${paramIndex++}`;
+    params.push(date_from);
+  }
+  if (date_to) {
+    whereClause += ` AND i.invoice_date <= $${paramIndex++}`;
+    params.push(date_to);
+  }
+
+  const allowedSort = {
+    invoice_no: "v.invoice_no",
+    invoice_date: "i.invoice_date",
+    customer_code: "c.code",
+  };
+  const sortColumn = allowedSort[sortBy] || "v.invoice_no";
+  const sortDirection = sortDir === "asc" ? "ASC" : "DESC";
+
+  // The total row count could be the number of distinct lines returned.
+  // Each line is either an invoice without receipts, or an invoice line per receipt.
+  const countResult = await pool.query(
+    `SELECT COUNT(*) as total
+     FROM invoice_received_view v
+     JOIN customer c ON c.id = v.customer_id
+     JOIN invoice i ON i.id = v.invoice_id
+     LEFT JOIN receipt_line_item rli ON rli.invoice_id = i.id
+     LEFT JOIN receipt r ON r.id = rli.receipt_id
+     ${whereClause}`,
+    params
+  );
+  const total = Number(countResult.rows[0].total);
+
+  const { rows } = await pool.query(
+    `SELECT v.invoice_no, i.invoice_date, c.code as customer_code, c.name as customer_name,
+            v.amount_due, v.amount_received as invoice_amount_received, v.amount_remain,
+            r.receipt_no, r.receipt_date, rli.amount_received as receipt_amount
+     FROM invoice_received_view v
+     JOIN customer c ON c.id = v.customer_id
+     JOIN invoice i ON i.id = v.invoice_id
+     LEFT JOIN receipt_line_item rli ON rli.invoice_id = i.id
+     LEFT JOIN receipt r ON r.id = rli.receipt_id
+     ${whereClause}
+     ORDER BY ${sortColumn} ${sortDirection}, r.receipt_date ASC
+     LIMIT $${paramIndex++} OFFSET $${paramIndex++}`,
+    [...params, Number(limit), offset]
+  );
+  
+  return {
+    data: rows,
+    total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(total / Number(limit)),
+  };
+}

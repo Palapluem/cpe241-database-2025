@@ -82,6 +82,50 @@ const REPORT_CONFIG = {
         { key: "quantity_sold", label: "Qty", align: "right", sortable: true, render: (v) => Number(v || 0).toLocaleString() },
         { key: "value_sold", label: "Value", align: "right", sortable: true, style: { fontWeight: 600 }, render: (v) => formatBaht(v) }
       ];
+    }  },
+  "customer-outstanding": {
+    title: "Customer Outstanding Balances",
+    subtitle: "Unpaid invoices and remaining amounts by customer",
+    emptyMessage: "No outstanding balances found.",
+    getColumns: () => [
+      { key: "customer_code", label: "Customer", sortable: true, render: (_, row) => <><span className="font-bold">{row.customer_code}</span> - {row.customer_name}</> },
+      { key: "amount_due", label: "Total Amount Due", align: "right", sortable: true, render: (v) => formatBaht(v) },
+      { key: "amount_already_received", label: "Paid Amount", align: "right", sortable: true, render: (v) => formatBaht(v) },
+      { key: "amount_remain", label: "Outstanding Balance", align: "right", sortable: true, style: { fontWeight: "bold", color: "var(--danger, #ef4444)" }, render: (v) => formatBaht(v) }
+    ]
+  },
+  "receipt-list": {
+    title: "List of Receipts",
+    subtitle: "All received customer payments",
+    emptyMessage: "No receipt records found.",
+    getColumns: (filters) => {
+      const hasDateFilter = filters?.dateFrom || filters?.dateTo;
+      return [
+        { key: "receipt_no", label: "Receipt No.", sortable: true, render: (v) => <span className="font-bold">{v}</span> },
+        { key: "receipt_date", label: "Date", sortable: true, render: (v) => formatDate(v) },
+        { key: "customer_code", label: "Customer", sortable: true, render: (_, row) => `${row.customer_name} (${row.customer_code})` },
+        { key: "payment_method", label: "Payment Method", sortable: true },
+        { key: "payment_notes", label: "Payment Notes", sortable: false },
+        { key: "total_received", label: "Total Amount Received", align: "right", sortable: true, style: { fontWeight: 600, color: "var(--success, #16a34a)" }, render: (v) => formatBaht(v) }
+      ];
+    }
+  },
+  "invoice-receipts": {
+    title: "List of Invoices and Receipt Information",
+    subtitle: "Invoice balances and received amount details",
+    emptyMessage: "No invoice/receipt records found.",
+    getColumns: (filters) => {
+      return [
+        { key: "invoice_no", label: "Invoice No.", sortable: true, render: (v) => <span className="font-bold">{v}</span> },
+        { key: "invoice_date", label: "Inv Date", sortable: true, render: (v) => formatDate(v) },
+        { key: "customer_code", label: "Customer", sortable: true, render: (_, row) => `${row.customer_name} (${row.customer_code})` },
+        { key: "amount_due", label: "Amount Due", align: "right", sortable: true, render: (v) => formatBaht(v) },
+        { key: "invoice_amount_received", label: "Amt Received", align: "right", sortable: true, render: (v) => formatBaht(v) },
+        { key: "amount_remain", label: "Amt Remaining", align: "right", sortable: true, style: { color: "var(--danger, #ef4444)" }, render: (v) => formatBaht(v) },
+        { key: "receipt_no", label: "Receipt No.", sortable: true },
+        { key: "receipt_date", label: "Receipt Date", sortable: false, render: (v) => v ? formatDate(v) : "-" },
+        { key: "receipt_amount", label: "Received Here", align: "right", sortable: false, render: (v) => v ? formatBaht(v) : "-" }
+      ];
     }
   }
 };

@@ -1,6 +1,6 @@
 // PostgreSQL connection pool
 // Example usage: pool.query("SELECT 1")
-import pg from "pg";
+import { createRequire } from "module"; const require = createRequire(import.meta.url); const pg = require("pg");
 import dotenv from "dotenv";
 import logger from "../utils/logger.js";
 
@@ -20,3 +20,4 @@ export const pool = new pg.Pool({ connectionString });
 pool.on("error", (err) => {
   logger.error("Database pool error", { message: err.message });
 });
+

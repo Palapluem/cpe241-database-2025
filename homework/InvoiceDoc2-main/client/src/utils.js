@@ -1,4 +1,3 @@
-
 // Format number as Thai Baht currency
 // Example: formatBaht(1234.5) -> "฿1,234.50"
 export const formatBaht = (amount) => {
@@ -7,6 +6,9 @@ export const formatBaht = (amount) => {
         currency: 'THB',
     }).format(amount);
 };
+
+export const round2 = (num) => Math.round((Number(num) || 0) * 100) / 100;
+
 
 // Format date string to Thai locale
 // Example: formatDate("2026-02-01") -> Thai formatted date

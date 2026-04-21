@@ -8,5 +8,8 @@ r.get("/monthly-summary", c.getInvoicesMonthlySummary);
 r.get("/product-sales", c.getSalesByProductSummary);
 r.get("/customer-sales", c.getSalesByCustomerSummary);
 r.get("/product-monthly-sales", c.getSalesByProductMonthlySummary);
+r.get("/customer-outstanding", c.getCustomerOutstandingSummary);
+r.get("/receipt-list", c.getReceiptListReport);
+r.get("/invoice-receipts", c.getInvoiceReceiptsReport);
 
 export default r;
