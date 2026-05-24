@@ -59,6 +59,14 @@
 
 \newcommand{\blank}[1]{\fbox{\rule{0pt}{1.1em}\hspace{#1}}}
 \newcommand{\ans}[1]{\textbf{#1}}
+\newcommand{\schema}[1]{\texttt{#1}}
+\tikzset{
+    fdcell/.style={draw, rectangle, minimum height=0.72cm, minimum width=1.75cm, align=center, font=\scriptsize, inner sep=2pt},
+    fdcellwide/.style={draw, rectangle, minimum height=0.72cm, minimum width=2.2cm, align=center, font=\scriptsize, inner sep=2pt},
+    fdarrow/.style={-latex, thick},
+    fdarrowdash/.style={-latex, thick, dashed},
+    fdnote/.style={font=\scriptsize, fill=white, inner sep=1pt}
+}
 
 \begin{document}
 
@@ -712,20 +720,26 @@ PROJECT\_ASSIGNMENT(EmpID, ProjectID, EmpName, DeptID, DeptName,\\
 \end{enumerate}
 \end{multicols}
 
+\newpage
 \subsection*{Part 2: Short Answer Questions}
 \begin{enumerate}[label=\textbf{\arabic*.}]
     \item TRC ใช้ตัวแปรแทนทั้ง tuple/row เช่น \texttt{t.Attribute}; DRC ใช้ตัวแปรแทนค่าในแต่ละ domain/column
     \item \texttt{SELECT *} ดึง column เกินจำเป็น ทำให้ data transfer สูงขึ้น และลดโอกาสทำ projection pushdown ได้ดี
     \item \texttt{Index Scan} ไล่อ่านช่วง/ส่วนของ index หลาย entry; \texttt{Index Seek} กระโดดไปยัง entry ที่เกี่ยวข้องโดยตรงมากกว่า จึงมักมีต้นทุนต่ำกว่า
-    \item ตัวอย่าง: query \texttt{SELECT * FROM orders WHERE price > 1000} สองรอบใน transaction เดียวกัน รอบสองเจอ row ใหม่ที่ transaction อื่น insert และ commit เข้ามา
+    \item ตัวอย่าง: query เดิมสองรอบใน transaction เดียวกัน
+\begin{lstlisting}[language=SQL,numbers=none]
+SELECT * FROM orders WHERE price > 1000;
+\end{lstlisting}
+    รอบสองเจอ row ใหม่ที่ transaction อื่น insert และ commit เข้ามา
     \item ใช้ \texttt{SAVEPOINT} เช่น \texttt{SAVEPOINT sp1;} แล้ว \texttt{ROLLBACK TO sp1;}
     \item ใช้ insert record ลงตาราง log หลัง row ใหม่ถูก insert สำเร็จ เช่น เก็บ \texttt{emp\_id}, action, timestamp
-    \item สร้าง view ที่เลือกเฉพาะ column ปลอดภัย เช่น \texttt{id, name, position} แล้ว grant ให้ user โดยไม่ให้เห็น \texttt{salary}
+    \item สร้าง view ที่เลือกเฉพาะ column ปลอดภัย เช่น \texttt{id}, \texttt{name}, \texttt{position} แล้ว grant ให้ user โดยไม่ให้เห็น \texttt{salary}
     \item Database $\rightarrow$ Collection $\rightarrow$ Document $\rightarrow$ Field
     \item Data Warehouse
     \item ขัดกับ 2NF เพราะมี Partial Dependency จากส่วนหนึ่งของ composite key ไปยัง non-prime attributes
 \end{enumerate}
 
+\newpage
 \subsection*{Part 3: Long Questions}
 
 \subsubsection*{Question 1}
@@ -838,38 +852,339 @@ GoodStudent &= GoodEnroll \div DBCourse\\
 \end{aligned}
 \]
 
-\subsubsection*{Question 3}
-\textbf{3.1} Relation เดิมอยู่ใน \textbf{1NF} เท่านั้น เพราะมี Partial Dependency จากส่วนหนึ่งของ composite key ไปยัง non-prime attributes จึงไม่ผ่าน 2NF
+\newpage
+\subsubsection*{Question 3: Normalization เฉลยละเอียดพร้อม FD Diagram}
+
+\textbf{เริ่มจาก Relation เดิม}
+\begin{center}
+\small\ttfamily
+\begin{tabular}{l}
+PROJECT\_ASSIGNMENT(EmpID, ProjectID, EmpName, DeptID, DeptName,\\
+\quad ProjectName, ClientID, ClientName,\\
+\quad ManagerID, ManagerName, Hours, SkillLevel)
+\end{tabular}
+\end{center}
+\noindent PK = \schema{\{EmpID, ProjectID\}}
+
+\vspace{0.2cm}
+\textbf{3.1 ตรวจ Normal Form เดิม}\\
+Relation เดิมถือว่าอยู่ใน \textbf{1NF เท่านั้น} เพราะทุก attribute เป็น atomic value แล้ว แต่ \textbf{ไม่ผ่าน 2NF} เนื่องจากมี partial dependency จากบางส่วนของ composite key ไปยัง non-prime attributes
+
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}
+    \node[fdcell, fill=cyan!15] (empid) at (0,0) {\uline{EmpID}};
+    \node[fdcell, fill=cyan!15, right=0cm of empid] (pid) {\uline{ProjectID}};
+    \node[fdcell, right=0cm of pid] (ename) {EmpName};
+    \node[fdcell, right=0cm of ename] (deptid) {DeptID};
+    \node[fdcell, right=0cm of deptid] (deptname) {DeptName};
+    \node[fdcellwide, right=0cm of deptname] (pname) {ProjectName};
+    \node[fdcell, right=0cm of pname] (clientid) {ClientID};
+    \node[fdcellwide, right=0cm of clientid] (clientname) {ClientName};
+    \node[fdcell, right=0cm of clientname] (managerid) {ManagerID};
+    \node[fdcellwide, right=0cm of managerid] (managername) {ManagerName};
+    \node[fdcell, right=0cm of managername] (hours) {Hours};
+    \node[fdcellwide, right=0cm of hours] (skill) {SkillLevel};
+
+    \draw (empid.north) -- ++(0,0.35) -| (pid.north);
+    \node[font=\scriptsize] at ($(empid.north)!0.5!(pid.north)+(0,0.55)$) {Composite PK};
+
+    \draw[fdarrow] (empid.south) -- ++(0,-0.35) -| (ename.south)
+        node[pos=0.22, below, fdnote]{partial};
+    \draw[fdarrow] (empid.south) -- ++(0,-0.70) -| (deptid.south);
+
+    \draw[fdarrow] (pid.south) -- ++(0,-1.05) -| (pname.south)
+        node[pos=0.17, below, fdnote]{partial};
+    \draw[fdarrow] (pid.south) -- ++(0,-1.40) -| (clientid.south);
+    \draw[fdarrow] (pid.south) -- ++(0,-1.75) -| (managerid.south);
+
+    \draw[fdarrow] ($(empid.south)!0.5!(pid.south)$) -- ++(0,-2.15) -| (hours.south)
+        node[pos=0.14, below, fdnote]{full};
+    \draw[fdarrow] ($(empid.south)!0.5!(pid.south)$) -- ++(0,-2.50) -| (skill.south);
+
+    \draw[fdarrowdash] (deptid.south) -- ++(0,-2.90) -| (deptname.south)
+        node[pos=0.20, below, fdnote]{transitive};
+    \draw[fdarrowdash] (clientid.south) -- ++(0,-3.25) -| (clientname.south)
+        node[pos=0.18, below, fdnote]{transitive};
+    \draw[fdarrowdash] (managerid.south) -- ++(0,-3.60) -| (managername.south)
+        node[pos=0.18, below, fdnote]{transitive};
+\end{tikzpicture}
+}
+\end{center}
+
+\textbf{สรุป 3.1:}
 \begin{itemize}
-    \item Partial Dependency: \texttt{EmpID} $\rightarrow$ \texttt{EmpName, DeptID}
-    \item Partial Dependency: \texttt{ProjectID} $\rightarrow$ \texttt{ProjectName, ClientID, ManagerID}
-    \item Transitive Dependency: \texttt{DeptID} $\rightarrow$ \texttt{DeptName}, \texttt{ClientID} $\rightarrow$ \texttt{ClientName}, \texttt{ManagerID} $\rightarrow$ \texttt{ManagerName}
+    \item Partial Dependency: \schema{EmpID} $\rightarrow$ \schema{EmpName, DeptID}
+    \item Partial Dependency: \schema{ProjectID} $\rightarrow$ \schema{ProjectName, ClientID, ManagerID}
+    \item Full Dependency ที่ถูกต้องกับ key ทั้งก้อน: \schema{\{EmpID, ProjectID\}} $\rightarrow$ \schema{Hours, SkillLevel}
+    \item Transitive Dependency ที่จะต้องแก้ใน 3NF: \schema{DeptID} $\rightarrow$ \schema{DeptName}, \schema{ClientID} $\rightarrow$ \schema{ClientName}, \schema{ManagerID} $\rightarrow$ \schema{ManagerName}
 \end{itemize}
 
 \vspace{0.2cm}
-\textbf{3.2 2NF Decomposition}
-\begin{itemize}
-    \item \textbf{EMPLOYEE\_2NF}(\uline{EmpID}, EmpName, DeptID, DeptName)
-    \item \textbf{PROJECT\_2NF}(\uline{ProjectID}, ProjectName, ClientID, ClientName, ManagerID, ManagerName)
-    \item \textbf{ASSIGNMENT}(\uline{EmpID} (FK), \uline{ProjectID} (FK), Hours, SkillLevel)
-\end{itemize}
-เหตุผล: แยกข้อมูลที่ขึ้นกับ \texttt{EmpID} และ \texttt{ProjectID} ออกจากตารางกลาง เหลือข้อมูลที่ขึ้นกับ key ทั้งก้อนใน \texttt{ASSIGNMENT}
+\textbf{3.2 แก้เป็น 2NF}\\
+แยก attribute ที่ขึ้นกับ \schema{EmpID} อย่างเดียว และ attribute ที่ขึ้นกับ \schema{ProjectID} อย่างเดียว ออกจากตารางกลาง เหลือเฉพาะ attribute ที่ขึ้นกับ key ทั้งก้อนใน \schema{ASSIGNMENT}
 
-\vspace{0.2cm}
-\textbf{3.3 3NF Decomposition}
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{4}{|c|}{\textbf{EMPLOYEE\_2NF}} \\
+    \hline
+    \uline{EmpID} & EmpName & DeptID & DeptName \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{6}{|c|}{\textbf{PROJECT\_2NF}} \\
+    \hline
+    \uline{ProjectID} & ProjectName & ClientID & ClientName & ManagerID & ManagerName \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{4}{|c|}{\textbf{ASSIGNMENT}} \\
+    \hline
+    \uline{EmpID} (FK) & \uline{ProjectID} (FK) & Hours & SkillLevel \\
+    \hline
+\end{tabular}
+\end{center}
+
+\textbf{FD diagram หลังได้ 2NF แต่ยังเห็นปัญหา 3NF:}
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}
+    \node[font=\scriptsize\bfseries] at (3.2,0.65) {EMPLOYEE\_2NF};
+    \node[fdcell, fill=cyan!15] (e1) at (0,0) {\uline{EmpID}};
+    \node[fdcell, right=0cm of e1] (e2) {EmpName};
+    \node[fdcell, right=0cm of e2] (e3) {DeptID};
+    \node[fdcell, right=0cm of e3] (e4) {DeptName};
+    \draw[fdarrow] (e1.south) -- ++(0,-0.35) -| (e3.south);
+    \draw[fdarrowdash] (e3.south) -- ++(0,-0.75) -| (e4.south)
+        node[pos=0.25, below, fdnote]{transitive};
+
+    \node[font=\scriptsize\bfseries] at (13,0.65) {PROJECT\_2NF};
+    \node[fdcell, fill=cyan!15] (p1) at (7.2,0) {\uline{ProjectID}};
+    \node[fdcellwide, right=0cm of p1] (p2) {ProjectName};
+    \node[fdcell, right=0cm of p2] (p3) {ClientID};
+    \node[fdcellwide, right=0cm of p3] (p4) {ClientName};
+    \node[fdcell, right=0cm of p4] (p5) {ManagerID};
+    \node[fdcellwide, right=0cm of p5] (p6) {ManagerName};
+    \draw[fdarrow] (p1.south) -- ++(0,-0.35) -| (p3.south);
+    \draw[fdarrow] (p1.south) -- ++(0,-0.65) -| (p5.south);
+    \draw[fdarrowdash] (p3.south) -- ++(0,-1.00) -| (p4.south)
+        node[pos=0.25, below, fdnote]{transitive};
+    \draw[fdarrowdash] (p5.south) -- ++(0,-1.35) -| (p6.south)
+        node[pos=0.22, below, fdnote]{transitive};
+\end{tikzpicture}
+}
+\end{center}
+
+\textbf{สรุป 3.2:} ผลลัพธ์ 2NF ถูกต้อง แต่ยังไม่ผ่าน 3NF เพราะยังเก็บ \schema{DeptName}, \schema{ClientName}, \schema{ManagerName} ไว้ในตารางที่ determinant ของมันไม่ใช่ key
+
+\newpage
+\textbf{3.3 แก้เป็น 3NF}\\
+แยก transitive dependency ออกเป็นตารางใหม่ โดยให้ determinant ที่เป็น non-key กลายเป็น PK ของตารางใหม่
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{2}{|c|}{\textbf{DEPARTMENT}} \\
+    \hline
+    \uline{DeptID} & DeptName \\
+    \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{2}{|c|}{\textbf{CLIENT}} \\
+    \hline
+    \uline{ClientID} & ClientName \\
+    \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{2}{|c|}{\textbf{MANAGER}} \\
+    \hline
+    \uline{ManagerID} & ManagerName \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{3}{|c|}{\textbf{EMPLOYEE}} \\
+    \hline
+    \uline{EmpID} & EmpName & DeptID (FK) \\
+    \hline
+\end{tabular}
+\quad
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{4}{|c|}{\textbf{PROJECT}} \\
+    \hline
+    \uline{ProjectID} & ProjectName & ClientID (FK) & ManagerID (FK) \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{4}{|c|}{\textbf{ASSIGNMENT}} \\
+    \hline
+    \uline{EmpID} (FK) & \uline{ProjectID} (FK) & Hours & SkillLevel \\
+    \hline
+\end{tabular}
+\end{center}
+
+\textbf{FD diagram หลัง 3NF:}
+\begin{center}
+\resizebox{0.92\textwidth}{!}{%
+\begin{tikzpicture}
+    \node[fdcell, fill=cyan!15] (d1) at (0,0) {\uline{DeptID}};
+    \node[fdcellwide, right=0cm of d1] (d2) {DeptName};
+    \draw[fdarrow] (d1.south) -- ++(0,-0.35) -| (d2.south);
+
+    \node[fdcell, fill=cyan!15] (c1) at (4.5,0) {\uline{ClientID}};
+    \node[fdcellwide, right=0cm of c1] (c2) {ClientName};
+    \draw[fdarrow] (c1.south) -- ++(0,-0.35) -| (c2.south);
+
+    \node[fdcell, fill=cyan!15] (m1) at (9.2,0) {\uline{ManagerID}};
+    \node[fdcellwide, right=0cm of m1] (m2) {ManagerName};
+    \draw[fdarrow] (m1.south) -- ++(0,-0.35) -| (m2.south);
+
+    \node[font=\scriptsize] at (5.7,-1.0) {ทุก determinant ของตารางแยกเป็น PK ของตารางตัวเองแล้ว จึงไม่เหลือ transitive dependency};
+\end{tikzpicture}
+}
+\end{center}
+
+\textbf{Mapping FK:}
 \begin{itemize}
-    \item \textbf{EMPLOYEE}(\uline{EmpID}, EmpName, DeptID (FK))
-    \item \textbf{DEPARTMENT}(\uline{DeptID}, DeptName)
-    \item \textbf{PROJECT}(\uline{ProjectID}, ProjectName, ClientID (FK), ManagerID (FK))
-    \item \textbf{CLIENT}(\uline{ClientID}, ClientName)
-    \item \textbf{MANAGER}(\uline{ManagerID}, ManagerName)
-    \item \textbf{ASSIGNMENT}(\uline{EmpID} (FK), \uline{ProjectID} (FK), Hours, SkillLevel)
+    \item \schema{EMPLOYEE.DeptID} อ้างถึง \schema{DEPARTMENT.DeptID}
+    \item \schema{PROJECT.ClientID} อ้างถึง \schema{CLIENT.ClientID}
+    \item \schema{PROJECT.ManagerID} อ้างถึง \schema{MANAGER.ManagerID}
+    \item \schema{ASSIGNMENT.EmpID} อ้างถึง \schema{EMPLOYEE.EmpID}
+    \item \schema{ASSIGNMENT.ProjectID} อ้างถึง \schema{PROJECT.ProjectID}
 \end{itemize}
-แก้ transitive dependencies ต่อไปนี้:
+
+\textbf{ประโยคสรุปแบบส่งข้อสอบ:}\\
+Relation เดิมอยู่ใน 1NF แต่ไม่ผ่าน 2NF เพราะมี partial dependency จาก \schema{EmpID} และ \schema{ProjectID} ซึ่งเป็นเพียงบางส่วนของ composite PK หลังแยกเป็น 2NF แล้วยังไม่ผ่าน 3NF เพราะมี transitive dependency ได้แก่
+\begin{itemize}[leftmargin=1.5em]
+    \item \schema{EmpID} $\rightarrow$ \schema{DeptID} $\rightarrow$ \schema{DeptName}
+    \item \schema{ProjectID} $\rightarrow$ \schema{ClientID} $\rightarrow$ \schema{ClientName}
+    \item \schema{ProjectID} $\rightarrow$ \schema{ManagerID} $\rightarrow$ \schema{ManagerName}
+\end{itemize}
+ดังนั้นจึงต้องแยก \schema{DEPARTMENT}, \schema{CLIENT}, และ \schema{MANAGER} ออกมา
+
+\newpage
+\section*{RECAP: สรุปเนื้อหาจาก Mock Exam สำหรับอ่านก่อนสอบ}
+\textit{ส่วนนี้สรุปเป็น pattern จำสอบ ไม่ใช่การคัดโจทย์มาแปะตรง ๆ}
+
+\subsection*{RECAP 1: Query Languages, RA, TRC, DRC}
 \begin{itemize}
-    \item \texttt{EmpID} $\rightarrow$ \texttt{DeptID} $\rightarrow$ \texttt{DeptName}
-    \item \texttt{ProjectID} $\rightarrow$ \texttt{ClientID} $\rightarrow$ \texttt{ClientName}
-    \item \texttt{ProjectID} $\rightarrow$ \texttt{ManagerID} $\rightarrow$ \texttt{ManagerName}
+    \item \textbf{Relational Algebra (RA)} เป็นภาษาแบบ Procedural เพราะต้องบอกขั้นตอนว่าจะ select, project, join อย่างไร
+    \item \textbf{SQL, TRC, DRC} เป็นภาษาแบบ Non-procedural เพราะบอกเงื่อนไขของข้อมูลที่ต้องการมากกว่าบอกแผนทำงานทีละขั้น
+    \item \textbf{TRC} ใช้ตัวแปรแทน tuple ทั้งแถว เช่น \texttt{t.EmpID}; \textbf{DRC} ใช้ตัวแปรแทนค่าในแต่ละ domain หรือแต่ละ column
+    \item เจอคำว่า ``มีอย่างน้อยหนึ่ง'' ให้นึกถึง $\exists$ หรือ \texttt{EXISTS}; เจอคำว่า ``ทุก'' ให้นึกถึง $\forall$ หรือ pattern แบบ double \texttt{NOT EXISTS}
+    \item Query แนว division เช่น ``ลูกค้าซื้อสินค้าทุกชิ้น'' หรือ ``นักเรียนลงทุกวิชา'' มักเขียนด้วยเงื่อนไขว่าไม่มี item ใดที่ขาดไป
+    \item Cartesian Product ได้จำนวนแถวเยอะมากเพราะเป็นการจับคู่ทุกแถวของตารางหนึ่งกับทุกแถวของอีกตารางหนึ่ง จึงควรตามด้วยเงื่อนไข join ที่ถูกต้องเสมอ
+\end{itemize}
+
+\subsection*{RECAP 2: Query Optimization}
+\begin{itemize}
+    \item \textbf{Predicate Pushdown} คือดันเงื่อนไขกรองแถวให้ทำเร็วที่สุดก่อน join เพื่อลดจำนวน tuple ที่ต้องประมวลผล
+    \item \textbf{Projection Pushdown} คือเลือกเฉพาะ column ที่จำเป็นให้เร็วที่สุด เพื่อลด data transfer และลดขนาด intermediate result
+    \item หลีกเลี่ยง \texttt{SELECT *} เพราะดึง column เกินจำเป็น ทำให้ optimizer มีพื้นที่ optimize น้อยลง และใช้ I/O มากขึ้น
+    \item \textbf{WHERE} กรองก่อน \texttt{GROUP BY}; \textbf{HAVING} กรองหลัง aggregate แล้ว ถ้าเงื่อนไขไม่เกี่ยวกับ aggregate ควรใส่ใน \texttt{WHERE}
+    \item Index ช่วยอ่านเร็วขึ้น แต่ทำให้ \texttt{INSERT}, \texttt{UPDATE}, \texttt{DELETE} ช้าลง เพราะ index structure ต้องถูกดูแลเพิ่ม
+    \item Composite index ต้องคิดลำดับ column ให้ตรงกับเงื่อนไขค้นหาหลัก เช่นค้นด้วย department ก่อน salary ก็ควรมี index เริ่มจาก department
+    \item Join order มีผลมาก ตารางที่ถูกกรองแล้วเหลือแถวน้อยควรถูก join เร็ว เพื่อไม่ให้ intermediate result โตเกินจำเป็น
+    \item \textbf{Horizontal partitioning} แบ่งตามแถว เช่นแบ่ง customer ตามช่วง A--Z หรือแบ่ง order ตามปี; \textbf{Vertical partitioning} แบ่งตาม column
+    \item \textbf{Replication} คือทำสำเนาข้อมูลหลายชุดเพื่อ reliability และ availability แต่ต้องระวัง consistency และต้นทุน sync
+\end{itemize}
+
+\subsection*{RECAP 3: Transaction, ACID, Concurrency}
+\begin{itemize}
+    \item \textbf{Atomicity} คือ transaction ต้องสำเร็จทั้งก้อนหรือยกเลิกทั้งก้อน ไม่มีครึ่ง ๆ กลาง ๆ
+    \item \textbf{Consistency} คือก่อนและหลัง transaction ฐานข้อมูลต้องไม่ละเมิด constraint
+    \item \textbf{Isolation} คือ transaction ที่รันพร้อมกันต้องไม่รบกวนกันจนได้ผลผิดจากที่ควร
+    \item \textbf{Durability} คือ commit แล้วข้อมูลต้องอยู่รอดแม้ระบบล่ม
+    \item \textbf{Dirty Read} คืออ่านค่าที่ยังไม่ commit; \textbf{Non-repeatable Read} คืออ่าน row เดิมสองครั้งแล้วค่าเปลี่ยน; \textbf{Phantom Read} คือ query เงื่อนไขเดิมแล้วรอบหลังมีแถวใหม่โผล่
+    \item Isolation ยิ่งสูงยิ่งกันปัญหา concurrency ได้ดี แต่แลกกับ performance และโอกาส lock/block ที่มากขึ้น
+    \item \textbf{Serializable} ปลอดภัยสุดในเชิง isolation เพราะทำให้ผลลัพธ์เหมือน transaction รันเรียงทีละตัว
+    \item \texttt{SAVEPOINT} ใช้ตั้งจุด rollback ย่อยใน transaction; \texttt{SELECT FOR UPDATE} ใช้ lock row ที่กำลังจะอ่านเพื่อแก้ไข
+    \item \textbf{Autocommit} ทำให้แต่ละ SQL statement ถูก commit อัตโนมัติ จึงต้องปิดหรือเริ่ม transaction เองถ้าต้องการ rollback หลาย statement พร้อมกัน
+\end{itemize}
+
+\subsection*{RECAP 4: Advanced SQL, Trigger, View, Security}
+\begin{itemize}
+    \item \textbf{Trigger} คือ logic ที่ทำงานอัตโนมัติเมื่อเกิด event เช่น \texttt{INSERT}, \texttt{UPDATE}, \texttt{DELETE}
+    \item \textbf{BEFORE Trigger} เหมาะกับการ validate หรือปรับค่าก่อนบันทึก; \textbf{AFTER Trigger} เหมาะกับ audit log หรือ action หลังบันทึกสำเร็จ
+    \item \textbf{Assertion} ใช้ตรวจ constraint ที่อาจเกี่ยวหลายตาราง แต่ DBMS จำนวนมากไม่รองรับเต็มรูปแบบ จึงมักต้องใช้ trigger หรือ application logic แทน
+    \item \texttt{GRANT} ให้สิทธิ์, \texttt{REVOKE} ถอนสิทธิ์; เวลาให้สิทธิ์ควรให้เท่าที่จำเป็น ไม่ควรให้กว้างเกินงาน
+    \item \textbf{View} เป็น virtual table ใช้ซ่อน column สำคัญ เช่น salary หรือใช้ทำ interface ที่อ่านง่ายให้ user
+    \item View ที่ update กลับตารางจริงได้มักต้องเรียบง่าย อิง table เดียว และไม่ควรมี aggregate, \texttt{GROUP BY}, \texttt{DISTINCT}, หรือ join ซับซ้อน
+\end{itemize}
+
+\subsection*{RECAP 5: NoSQL and MongoDB}
+\begin{itemize}
+    \item \textbf{NoSQL} แปลว่า Not Only SQL เหมาะกับงานที่ schema ยืดหยุ่น scale ง่าย หรือข้อมูลมีโครงสร้างหลากหลาย
+    \item โครงสร้าง MongoDB จำจากใหญ่ไปเล็ก: \textbf{Database} $\rightarrow$ \textbf{Collection} $\rightarrow$ \textbf{Document} $\rightarrow$ \textbf{Field}
+    \item MongoDB เก็บข้อมูลแบบ BSON ซึ่งคล้าย JSON แต่รองรับชนิดข้อมูลเพิ่มเติมและเหมาะกับการจัดเก็บจริงใน database
+    \item JSON ต้องใช้ double quotes กับ key/string และห้ามมี trailing comma
+    \item Document database เหมาะกับข้อมูลที่มี nested object หรือ array; key-value เหมาะกับ cache/session; graph เหมาะกับข้อมูล relationship-heavy
+    \item \textbf{Mongoose} เป็น ODM ฝั่ง Node.js ใช้กำหนด schema/model และช่วยคุยกับ MongoDB ในระดับ object
+    \item จุดที่ออกสอบบ่อยคือให้เลือกว่า use case แบบนี้ควรใช้ database ประเภทใด ไม่ใช่จำชื่ออย่างเดียว
+\end{itemize}
+
+\subsection*{RECAP 6: OLTP, OLAP, Warehouse, Lake, Cloud}
+\begin{itemize}
+    \item \textbf{OLTP} เน้น transaction สั้น ๆ จำนวนมาก เช่น insert order, update stock, transfer money
+    \item \textbf{OLAP} เน้น query วิเคราะห์ข้อมูลก้อนใหญ่ เช่น report, dashboard, trend, aggregation
+    \item \textbf{Operational Database} ใช้กับงานประจำวันและข้อมูลปัจจุบัน; \textbf{Data Warehouse} ใช้เก็บข้อมูลประวัติที่จัดรูปแล้วเพื่อวิเคราะห์
+    \item \textbf{Data Lake} เก็บข้อมูล raw หลากหลายรูปแบบ ใช้แนวคิด schema-on-read คือค่อยตีความ schema ตอนนำไปใช้
+    \item ถ้าโจทย์บอกข้อมูลสะอาด เป็นโครงสร้าง และใช้ทำ BI ระยะยาว ให้นึกถึง Data Warehouse; ถ้าบอก raw, diverse, future analytics ให้นึกถึง Data Lake
+    \item \textbf{CAP} เตือนว่า distributed system ต้อง trade-off ระหว่าง Consistency, Availability, และ Partition Tolerance
+    \item \textbf{Elasticity} คือเพิ่มลด resource ตาม demand ได้ เหมาะกับ cloud workload ที่ traffic ขึ้นลงไม่คงที่
+\end{itemize}
+
+\subsection*{RECAP 7: Normalization แบบจับโจทย์ตาราง}
+\begin{itemize}
+    \item \textbf{1NF} ตรวจก่อนว่าทุกช่องเป็น atomic หรือไม่ ถ้ามี list, repeating group, หลายค่าในช่องเดียว ให้แตกออกเป็นหลายแถวหรือตารางลูก
+    \item \textbf{2NF} ตรวจเฉพาะกรณี primary key เป็น composite key ถ้า non-prime attribute พึ่งแค่บางส่วนของ key ให้แยกตารางออก
+    \item \textbf{3NF} ตรวจว่า non-key attribute ไปกำหนด non-key attribute ด้วยกันหรือไม่ ถ้ามีให้แยก determinant นั้นออกเป็นตารางใหม่
+    \item เวลาทำข้อสอบให้ขีดเส้นใต้ PK ก่อน แล้ววง FK หรือเขียนกำกับไว้ จากนั้นค่อยลาก FD ว่าใครกำหนดใคร
+    \item ถ้าโจทย์ให้ตารางที่ดูเหมือน normalize แล้ว อย่าเชื่อหน้าตา ให้ถามว่า attribute นี้ขึ้นกับ key ทั้งก้อนจริงไหม และ determinant ฝั่งซ้ายเป็น key ของตารางนั้นหรือเปล่า
+    \item Pattern หลอกบ่อย: ตารางกลางที่มี composite key แต่ยังแอบเก็บชื่อพนักงาน ชื่อโปรเจกต์ หรือชื่อแผนกไว้ด้วย ทำให้เกิด partial/transitive dependency
+    \item ตารางหลังแก้ 3NF ควรอ่านแล้วชัดว่า table หลักเก็บ entity, table กลางเก็บ relationship, และ FK ใช้โยงกลับโดยไม่ duplicate ชื่อที่ lookup ได้
 \end{itemize}
 
 \end{document}
