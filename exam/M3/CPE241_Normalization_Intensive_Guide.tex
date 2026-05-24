@@ -1,0 +1,747 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+\usepackage[margin=2.3cm]{geometry}
+\usepackage{enumitem}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage[normalem]{ulem}
+\usepackage{needspace}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc}
+
+\setmainfont{TH Sarabun New}
+\setmonofont{Courier New}
+\XeTeXlinebreaklocale "th"
+\XeTeXlinebreakskip = 0pt plus 1pt
+\linespread{1.12}
+
+\newcommand{\pk}[1]{\uline{#1}}
+\newcommand{\fd}{\(\rightarrow\)}
+\newcommand{\schema}[1]{\texttt{#1}}
+\newcommand{\ans}[1]{\textbf{#1}}
+\tikzset{
+    relbox/.style={draw, rounded corners=2pt, align=left, inner sep=5pt, font=\small},
+    fkline/.style={-{Latex[length=2mm]}, thick},
+    fdcell/.style={draw, rectangle, minimum height=0.75cm, minimum width=2.2cm, align=center, font=\scriptsize, inner sep=2pt},
+    fdarrow/.style={-{Latex[length=2mm]}, thick},
+    fdnote/.style={font=\scriptsize, fill=white, inner sep=1pt}
+}
+
+\begin{document}
+
+\begin{center}
+    \textbf{\Large CPE241 Normalization Intensive Guide}\\
+    \textbf{ชุดเสริมกันพลาด 1NF--2NF--3NF สำหรับข้อสอบปลายภาค}\\
+    \vspace{0.2cm}
+    อิงรูปแบบโจทย์ EMPLOYEE/TRAINING และโจทย์ต่อเนื่องแบบ 16 คะแนน
+\end{center}
+\hrule
+\vspace{0.4cm}
+
+\section*{ภาพรวมที่ต้องแม่นก่อนเข้าห้องสอบ}
+
+Normalization ไม่ใช่การ ``แยกตารางให้ดูสวย'' แต่คือการแยกตารางตาม \textbf{Functional Dependency (FD)} เพื่อให้ข้อมูลหนึ่งเรื่องถูกเก็บไว้ในที่ที่ควรอยู่จริง ๆ
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.4cm}|p{5.2cm}|p{6.6cm}|}
+    \hline
+    \rowcolor{gray!20}
+    \textbf{Normal Form} & \textbf{ถามตัวเองว่าอะไร} & \textbf{ถ้าไม่ผ่าน แก้อย่างไร} \\
+    \hline
+    1NF & ทุก cell เป็น atomic value ไหม? มี list, set, repeating group, Course1/Course2 ไหม? & แตกค่าซ้ำออกเป็นหลาย row หรือแยกเป็น child table ที่มี key ของ parent + key ของ item \\
+    \hline
+    2NF & ถ้า primary key เป็น composite key มี non-prime attribute ที่ขึ้นกับแค่บางส่วนของ key ไหม? & แยก attribute ที่ขึ้นกับ key บางส่วนไปอยู่กับ key ส่วนนั้น เช่น CourseID \fd CourseName ต้องไปตาราง COURSE \\
+    \hline
+    3NF & มี non-key attribute ไปกำหนด non-key attribute อื่นไหม? หรือมี A \fd B \fd C ไหม? & แยก determinant ที่เป็น non-key ออกเป็นตารางใหม่ เช่น DeptID \fd DeptName ต้องมี DEPARTMENT \\
+    \hline
+\end{tabular}
+\end{center}
+
+\subsection*{สูตรคิด 6 ขั้นตอนแบบใช้ได้ทุกข้อ}
+\begin{enumerate}[label=\textbf{Step \arabic*:}, leftmargin=2.4cm]
+    \item ระบุ relation และ primary key/candidate key ก่อนเสมอ ถ้า key เป็น composite ให้ระวัง 2NF เป็นพิเศษ
+    \item เขียน FD ทุกตัวที่โจทย์ให้ หรือ \textbf{อนุมานจากตารางที่ให้มา} เช่น \schema{CourseID} \fd \schema{CourseName}
+    \item แยก prime attribute และ non-prime attribute: prime คือ attribute ที่เป็นส่วนหนึ่งของ candidate key
+    \item ตรวจ 1NF: ห้ามมีค่าหลายค่าในช่องเดียว ห้ามมี repeating group แบบ \schema{Course1, Course2}
+    \item ตรวจ 2NF: หา FD ที่ซ้ายมือเป็น \textbf{ส่วนย่อยแท้ ๆ} ของ composite key แล้วไปกำหนด non-prime attribute
+    \item ตรวจ 3NF: หา FD แบบ non-key \fd non-key เช่น \schema{DeptID} \fd \schema{DeptName}
+\end{enumerate}
+
+\subsection*{ถ้าโจทย์ให้เป็นตาราง ไม่ได้ให้ FD}
+ในข้อสอบจริงอาจไม่ได้เขียน FD มาให้ตรง ๆ แต่ให้ตารางข้อมูลมาแทน ให้ทำแบบนี้:
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item ดู column ที่เป็นรหัส เช่น \schema{EmployeeID}, \schema{CourseID}, \schema{DeptID} เพราะมักเป็น determinant
+    \item มองค่าที่ซ้ำกัน: ถ้า \schema{CourseID = T101} โผล่หลายแถวแล้ว \schema{CourseName} เป็น Database เหมือนเดิมทุกครั้ง ให้สงสัยว่า \schema{CourseID} \fd \schema{CourseName}
+    \item แยก ``ข้อมูลของ entity'' ออกจาก ``ข้อมูลของความสัมพันธ์'' เช่น \schema{CourseName} เป็นข้อมูลของ course แต่ \schema{Result} เป็นข้อมูลของการที่พนักงานคนหนึ่งลง course หนึ่ง
+    \item ระวังอย่าพิสูจน์จาก sample data อย่างเดียว ให้ใช้ความหมายของ column ประกอบด้วย เช่น รหัสแผนกควรกำหนดชื่อแผนกได้
+\end{enumerate}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.0cm}|p{4.8cm}|p{5.0cm}|}
+    \hline
+    \rowcolor{gray!20}
+    \textbf{เห็นในตาราง} & \textbf{อนุมาน FD} & \textbf{ผลต่อ Normalization} \\
+    \hline
+    \schema{T101} มี \schema{Database} และ \schema{10 hours} ซ้ำทุกแถว & \schema{CourseID} \fd \schema{CourseName, Hours} & ถ้าอยู่ใน table ที่ key = \schema{\{EmployeeID, CourseID\}} จะเป็น partial dependency \\
+    \hline
+    \schema{D01} มีชื่อ \schema{Engineering} ซ้ำทุกที่ & \schema{DeptID} \fd \schema{DeptName} & มักเป็น transitive dependency ต้องแยก \schema{DEPARTMENT} \\
+    \hline
+    \schema{Result} เปลี่ยนตามพนักงานและ course & \schema{\{EmployeeID, CourseID\}} \fd \schema{Result} & ควรอยู่ในตารางกลาง เช่น \schema{TRAINING} \\
+    \hline
+\end{tabular}
+\end{center}
+
+\noindent\textbf{ประโยคตอบเอาคะแนน:}
+\begin{itemize}
+    \item ``Relation นี้อยู่ใน 1NF เท่านั้น เพราะมี partial dependency คือ ... จึงไม่ผ่าน 2NF''
+    \item ``หลังแยกเป็น 2NF แล้วยังไม่ผ่าน 3NF เพราะมี transitive dependency คือ ...''
+    \item ``ผลลัพธ์ 3NF คือ ... โดย \pk{...} เป็น PK และ ... เป็น FK อ้างถึง ...''
+\end{itemize}
+
+\subsection*{ควรวาดเส้นโยงไหม?}
+\textbf{ควรวาด แต่ควรวาดเป็นเส้น Functional Dependency ใต้ตารางแบบ Lecture 6} ไม่ใช่ ER diagram กล่องใหญ่ ๆ เส้นใต้ตารางช่วยให้เห็นทันทีว่า determinant ตัวไหนกำหนด attribute ตัวไหน และปัญหาเป็น partial หรือ transitive dependency
+\begin{itemize}
+    \item ขีดเส้นใต้ PK ในแต่ละตาราง
+    \item ลากเส้นใต้จาก determinant ไป dependent attribute เช่น \schema{CourseID} $\rightarrow$ \schema{CourseName}
+    \item ถ้า determinant เป็น composite key ให้ลากจาก key ทั้งก้อน หรือเขียน label \schema{\{A,B\} $\rightarrow$ C}
+    \item เขียนกำกับสั้น ๆ ว่า \schema{partial dependency} หรือ \schema{transitive dependency} ถ้าเป็นจุดที่ทำให้ไม่ผ่าน NF
+\end{itemize}
+
+\newpage
+\section*{โจทย์จำลองแบบต่อเนื่อง 16 คะแนน}
+
+\subsection*{สถานการณ์}
+บริษัทเก็บข้อมูลพนักงานและการอบรม คล้ายโจทย์ EMPLOYEE/TRAINING ในแบบฝึกหัด SQL เดิม แต่ข้อสอบนี้ตั้งใจทำให้มีกับดัก Normalization
+
+\subsection*{Part A: 1NF Check (3 คะแนน)}
+กำหนดข้อมูลเริ่มต้น 2 ตาราง:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.18}
+\small
+\begin{tabular}{|c|l|l|c|}
+    \hline
+    \rowcolor{gray!20}
+    \textbf{EmployeeID} & \textbf{EmployeeName} & \textbf{EmpDepartment} & \textbf{HireYear} \\
+    \hline
+    201 & Somchai & Engineering & 2020 \\
+    202 & Suda & IT & 2021 \\
+    203 & Anan & Engineering & 2022 \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.18}
+\small
+\begin{tabular}{|c|l|l|l|}
+    \hline
+    \rowcolor{gray!20}
+    \textbf{EmployeeID} & \textbf{CourseIDs} & \textbf{CourseNames} & \textbf{Hours} \\
+    \hline
+    201 & T101, T102 & Database, System Design & 10, 8 \\
+    202 & T103, T105 & Web Dev, Network & 6, 7 \\
+    203 & T101 & Database & 10 \\
+    \hline
+\end{tabular}
+\end{center}
+
+\noindent\textbf{คำถาม 1 (3 คะแนน):} ตารางด้านบนอยู่ใน 1NF หรือไม่ ถ้าไม่ผ่าน ให้แก้เป็น 1NF พร้อมระบุ PK/FK
+
+\vspace{4.6cm}
+
+\newpage
+\subsection*{Part B: 2NF Check (6 คะแนน)}
+หลังจากทีมหนึ่งพยายามแก้ข้อมูลแล้ว ได้ตาราง 3 ตารางด้านล่างนี้:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.12}
+\small
+\begin{tabular}{|c|l|c|l|c|}
+    \hline
+    \rowcolor{gray!20}
+    \multicolumn{5}{|c|}{\textbf{EMPLOYEE}} \\
+    \hline
+    \textbf{EmployeeID} & \textbf{EmployeeName} & \textbf{EmpDeptID} & \textbf{EmpDeptName} & \textbf{HireYear} \\
+    \hline
+    201 & Somchai & D01 & Engineering & 2020 \\
+    202 & Suda & D02 & IT & 2021 \\
+    203 & Anan & D01 & Engineering & 2022 \\
+    204 & Malee & D03 & Data & 2021 \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.12}
+\small
+\begin{tabular}{|c|l|c|l|c|}
+    \hline
+    \rowcolor{gray!20}
+    \multicolumn{5}{|c|}{\textbf{COURSE}} \\
+    \hline
+    \textbf{CourseID} & \textbf{CourseName} & \textbf{CourseDeptID} & \textbf{CourseDeptName} & \textbf{Hours} \\
+    \hline
+    T101 & Database & D01 & Engineering & 10 \\
+    T102 & System Design & D01 & Engineering & 8 \\
+    T103 & Web Dev & D02 & IT & 6 \\
+    T105 & Network & D02 & IT & 7 \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.12}
+\small
+\begin{tabular}{|c|c|l|c|c|c|}
+    \hline
+    \rowcolor{gray!20}
+    \multicolumn{6}{|c|}{\textbf{TRAINING}} \\
+    \hline
+    \textbf{EmployeeID} & \textbf{CourseID} & \textbf{CourseName} & \textbf{CourseDeptID} & \textbf{Hours} & \textbf{Result} \\
+    \hline
+    201 & T101 & Database & D01 & 10 & Pass \\
+    201 & T102 & System Design & D01 & 8 & Pass \\
+    202 & T103 & Web Dev & D02 & 6 & Pass \\
+    202 & T105 & Network & D02 & 7 & Fail \\
+    203 & T101 & Database & D01 & 10 & Pass \\
+    \hline
+\end{tabular}
+\end{center}
+
+\noindent\textbf{กำหนดให้:} PK ของ \schema{EMPLOYEE} คือ \schema{EmployeeID}, PK ของ \schema{COURSE} คือ \schema{CourseID}, และ PK ของ \schema{TRAINING} คือ \schema{\{EmployeeID, CourseID\}}\\
+\textbf{หมายเหตุ:} โจทย์ไม่ได้ให้ FD ตรง ๆ ให้สังเกตจากค่าที่ซ้ำและความหมายของ column
+
+\noindent\textbf{คำถาม 2 (6 คะแนน):} Schema ทั้ง 3 ตารางนี้อยู่ใน 2NF หรือไม่ ถ้าไม่ผ่าน ให้แก้เป็น 2NF พร้อมระบุ PK/FK
+
+\vspace{4.0cm}
+
+\newpage
+\subsection*{Part C: 3NF Check (7 คะแนน)}
+\noindent\textbf{ใช้ตาราง EMPLOYEE, COURSE, TRAINING จากคำถาม 2 และใช้ผลลัพธ์ 2NF ที่นักศึกษาตอบในข้อก่อนหน้า}\\
+\textbf{คำถาม 3 (7 คะแนน):} จากผลลัพธ์ 2NF ในข้อก่อนหน้า จงตรวจว่าอยู่ใน 3NF หรือไม่ ถ้าไม่ผ่าน ให้แก้เป็น 3NF พร้อมระบุ PK/FK และบอกว่าแก้ transitive dependency ตัวใด\\
+\textit{หมายเหตุ: ในข้อสอบจริง ข้อนี้มักถามต่อจากตารางข้อ 2 ถ้าข้อ 2 แยกตารางผิด ข้อ 3 จะเสียตามง่ายมาก}
+
+\vspace{5.5cm}
+
+\newpage
+\section*{เฉลยละเอียดโจทย์จำลอง 16 คะแนน}
+
+\subsection*{เฉลย Part A: 1NF}
+\textbf{คำตอบสั้น:} ตารางที่สอง \schema{TRAINING\_RAW} \textbf{ไม่ผ่าน 1NF} เพราะมีหลายค่าใน cell เดียว เช่น \schema{CourseIDs = T101, T102}, \schema{CourseNames = Database, System Design}, \schema{Hours = 10, 8}
+
+\textbf{แก้เป็น 1NF:} ต้องทำให้หนึ่ง cell มีหนึ่งค่า และหนึ่ง row แทนหนึ่งการอบรมของพนักงานหนึ่งคนในหนึ่ง course
+
+\begin{itemize}
+    \item \schema{EMPLOYEE(\pk{EmployeeID}, EmployeeName, EmpDepartment, HireYear)}
+    \item \schema{TRAINING\_1NF(\pk{EmployeeID} (FK), \pk{CourseID}, CourseName, Hours)}
+\end{itemize}
+
+\textbf{รูปตารางที่ควรวาดในคำตอบ:}
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\small
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{4}{|c|}{\textbf{EMPLOYEE}} \\
+    \hline
+    \pk{EmployeeID} & EmployeeName & EmpDepartment & HireYear \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\small
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{4}{|c|}{\textbf{TRAINING\_1NF}} \\
+    \hline
+    \pk{EmployeeID} (FK) & \pk{CourseID} & CourseName & Hours \\
+    \hline
+\end{tabular}
+\end{center}
+
+\textbf{FD diagram ใต้ตารางที่ควรวาด:}
+\begin{center}
+\begin{tikzpicture}
+    \node[fdcell, fill=cyan!15] (eid) at (0,0) {\pk{EmployeeID}};
+    \node[fdcell, fill=cyan!15, right=0cm of eid] (cid) {\pk{CourseID}};
+    \node[fdcell, right=0cm of cid] (cname) {CourseName};
+    \node[fdcell, right=0cm of cname] (hrs) {Hours};
+
+    \draw[fdarrow] (cid.south) -- ++(0,-0.35) -| (cname.south)
+        node[pos=0.25, below, fdnote]{partial dependency};
+    \draw[fdarrow] (cid.south) -- ++(0,-0.75) -| (hrs.south);
+
+    \draw (eid.north) -- ++(0,0.35) -| (cid.north);
+    \node[font=\scriptsize] at ($(eid.north)!0.5!(cid.north)+(0,0.55)$) {PK = \{EmployeeID, CourseID\}};
+\end{tikzpicture}
+\end{center}
+\noindent\textit{หมายเหตุ: หลังแตกเป็น 1NF แล้ว ตารางนี้ยังมี partial dependency อยู่ จึงเป็นสะพานไปสู่ข้อ 2NF}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.18}
+\small
+\begin{tabular}{|c|c|l|c|}
+    \hline
+    \rowcolor{gray!20}
+    \textbf{EmployeeID} & \textbf{CourseID} & \textbf{CourseName} & \textbf{Hours} \\
+    \hline
+    201 & T101 & Database & 10 \\
+    201 & T102 & System Design & 8 \\
+    202 & T103 & Web Dev & 6 \\
+    202 & T105 & Network & 7 \\
+    203 & T101 & Database & 10 \\
+    \hline
+\end{tabular}
+\end{center}
+
+\textbf{จุดที่มักเสียคะแนน:}
+\begin{itemize}
+    \item แค่เขียนว่า ``ไม่ผ่าน 1NF'' แต่ไม่แตก row ให้ดู
+    \item ไม่ระบุว่า key ของ \schema{TRAINING\_1NF} ควรเป็น composite key \schema{\{EmployeeID, CourseID\}}
+    \item สร้าง column แบบ \schema{CourseID1, CourseID2} ซึ่งยังเป็น repeating group อยู่
+\end{itemize}
+
+\newpage
+\subsection*{เฉลย Part B: 2NF}
+\textbf{คำตอบสั้น:} ตารางชุดนี้ \textbf{ยังไม่ผ่าน 2NF} เพราะตาราง \schema{TRAINING} มี composite key = \schema{\{EmployeeID, CourseID\}} แต่มี attribute ที่ขึ้นกับแค่ \schema{CourseID} เท่านั้น
+
+\textbf{สถานะของแต่ละตารางในมุม 2NF:}
+\begin{itemize}
+    \item \schema{EMPLOYEE}: PK เป็น \schema{EmployeeID} ตัวเดียว จึงไม่มี partial dependency และถือว่าผ่าน 2NF
+    \item \schema{COURSE}: PK เป็น \schema{CourseID} ตัวเดียว จึงไม่มี partial dependency และถือว่าผ่าน 2NF
+    \item \schema{TRAINING}: PK เป็น composite key จึงต้องตรวจ partial dependency และพบว่าไม่ผ่าน 2NF
+\end{itemize}
+
+\textbf{วิธีอ่านจากตาราง ไม่ใช่จาก FD ที่โจทย์แจก:}
+\begin{itemize}
+    \item ใน \schema{TRAINING}, แถวของ \schema{T101} มี \schema{CourseName = Database}, \schema{CourseDeptID = D01}, \schema{Hours = 10} เหมือนกันทุกครั้ง ไม่ว่าจะเป็น Employee 201 หรือ 203
+    \item แปลว่า \schema{CourseName}, \schema{CourseDeptID}, และ \schema{Hours} เป็นข้อมูลของ \schema{CourseID}
+    \item ไม่ใช่ข้อมูลของคู่ \schema{\{EmployeeID, CourseID\}}
+    \item ดังนั้นใน \schema{TRAINING}, attribute เหล่านี้ขึ้นกับแค่ \schema{CourseID} ซึ่งเป็นส่วนหนึ่งของ composite key จึงเป็น partial dependency
+\end{itemize}
+
+\[
+\schema{CourseID} \rightarrow \schema{CourseName, CourseDeptID, Hours}
+\]
+
+นี่คือ \textbf{Partial Dependency} เพราะ \schema{CourseID} เป็นเพียงส่วนหนึ่งของ key \schema{\{EmployeeID, CourseID\}} แต่ไปกำหนด non-prime attributes
+
+\textbf{แก้เป็น 2NF:}
+\begin{itemize}
+    \item \schema{EMPLOYEE\_2NF(\pk{EmployeeID}, EmployeeName, EmpDeptID,}\\
+    \schema{EmpDeptName, HireYear)}
+    \item \schema{COURSE\_2NF(\pk{CourseID}, CourseName, CourseDeptID,}\\
+    \schema{CourseDeptName, Hours)}
+    \item \schema{TRAINING\_2NF(\pk{EmployeeID} (FK), \pk{CourseID} (FK), Result)}
+\end{itemize}
+
+\textbf{รูปตารางที่ควรวาดในคำตอบ:}
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{5}{|c|}{\textbf{EMPLOYEE\_2NF}} \\
+    \hline
+    \pk{EmployeeID} & EmployeeName & EmpDeptID & EmpDeptName & HireYear \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{5}{|c|}{\textbf{COURSE\_2NF}} \\
+    \hline
+    \pk{CourseID} & CourseName & CourseDeptID & CourseDeptName & Hours \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\small
+\begin{tabular}{|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{3}{|c|}{\textbf{TRAINING\_2NF}} \\
+    \hline
+    \pk{EmployeeID} (FK) & \pk{CourseID} (FK) & Result \\
+    \hline
+\end{tabular}
+\end{center}
+
+\textbf{FD diagram ใต้ตารางที่ควรวาดก่อนแก้ 2NF:}
+\begin{center}
+\begin{tikzpicture}
+    \node[fdcell, fill=cyan!15] (eid) at (0,0) {\pk{EmployeeID}};
+    \node[fdcell, fill=cyan!15, right=0cm of eid] (cid) {\pk{CourseID}};
+    \node[fdcell, right=0cm of cid] (cname) {CourseName};
+    \node[fdcell, right=0cm of cname] (deptid) {CourseDeptID};
+    \node[fdcell, right=0cm of deptid] (hrs) {Hours};
+    \node[fdcell, right=0cm of hrs] (res) {Result};
+
+    \draw (eid.north) -- ++(0,0.35) -| (cid.north);
+    \node[font=\scriptsize] at ($(eid.north)!0.5!(cid.north)+(0,0.55)$) {PK};
+
+    \draw[fdarrow] (cid.south) -- ++(0,-0.35) -| (cname.south)
+        node[pos=0.22, below, fdnote]{partial dependency};
+    \draw[fdarrow] (cid.south) -- ++(0,-0.70) -| (deptid.south);
+    \draw[fdarrow] (cid.south) -- ++(0,-1.05) -| (hrs.south);
+
+    \draw[fdarrow] ($(eid.south)!0.5!(cid.south)$) -- ++(0,-1.45) -| (res.south)
+        node[pos=0.18, below, fdnote]{full dependency};
+\end{tikzpicture}
+\end{center}
+\noindent\textit{แก้ 2NF โดยย้าย attribute ที่ขึ้นกับ \schema{CourseID} อย่างเดียวออกไปอยู่ใน \schema{COURSE\_2NF}\\
+และเหลือ \schema{Result} ไว้ใน \schema{TRAINING\_2NF}}
+
+\textbf{ทำไมเอา \schema{CourseName, CourseDeptID, Hours} ออกจาก TRAINING?}\\
+เพราะข้อมูลเหล่านี้เป็นคุณสมบัติของ course ไม่ใช่คุณสมบัติของ ``พนักงานคนนี้ลง course นี้'' ถ้า T101 คือ Database 10 ชั่วโมง ไม่ว่าจะพนักงานคนไหนลง T101 ก็ยังเป็น Database 10 ชั่วโมงเหมือนเดิม จึงต้องไปอยู่ใน \schema{COURSE\_2NF}
+
+\textbf{จุดหลอกสำคัญ:}
+\begin{itemize}
+    \item \schema{EMPLOYEE} และ \schema{COURSE} มี single-column key จึงไม่ค่อยมีปัญหา 2NF จาก partial dependency
+    \item แต่ \schema{TRAINING} มี composite key จึงต้องตรวจว่าทุก non-prime attribute ขึ้นกับ key ทั้งก้อนหรือไม่
+    \item \schema{Result} ต้องอยู่ใน \schema{TRAINING} เพราะผลการอบรมขึ้นกับทั้งพนักงานและ course
+\end{itemize}
+
+\newpage
+\subsection*{เฉลย Part C: 3NF}
+\textbf{คำตอบสั้น:} ผลลัพธ์ 2NF \textbf{ยังไม่ผ่าน 3NF} เพราะมี transitive dependency:
+
+\begin{itemize}
+    \item \schema{EmployeeID} \fd \schema{EmpDeptID} และ \schema{EmpDeptID} \fd \schema{EmpDeptName}
+    \item \schema{CourseID} \fd \schema{CourseDeptID} และ \schema{CourseDeptID} \fd \schema{CourseDeptName}
+\end{itemize}
+
+\textbf{วิธีอ่านจากตาราง:}
+\begin{itemize}
+    \item ใน \schema{EMPLOYEE}, \schema{D01} มากับ \schema{Engineering} ซ้ำทุกครั้ง จึงอนุมานว่า \schema{EmpDeptID} \fd \schema{EmpDeptName}
+    \item ใน \schema{COURSE}, \schema{D01} มากับ \schema{Engineering} และ \schema{D02} มากับ \schema{IT} ซ้ำเช่นกัน จึงอนุมานว่า \schema{CourseDeptID} \fd \schema{CourseDeptName}
+    \item ชื่อแผนกไม่ได้ขึ้นกับพนักงานหรือ course โดยตรง แต่ขึ้นกับรหัสแผนก จึงต้องแยก \schema{DEPARTMENT}
+\end{itemize}
+
+\textbf{แก้เป็น 3NF:}
+\begin{itemize}
+    \item \schema{DEPARTMENT(\pk{DeptID}, DeptName)}
+    \item \schema{EMPLOYEE(\pk{EmployeeID}, EmployeeName, EmpDeptID (FK), HireYear)}
+    \item \schema{COURSE(\pk{CourseID}, CourseName, CourseDeptID (FK), Hours)}
+    \item \schema{TRAINING(\pk{EmployeeID} (FK), \pk{CourseID} (FK), Result)}
+\end{itemize}
+
+\textbf{รูปตารางที่ควรวาดในคำตอบ:}
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\small
+\begin{tabular}{|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{2}{|c|}{\textbf{DEPARTMENT}} \\
+    \hline
+    \pk{DeptID} & DeptName \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{4}{|c|}{\textbf{EMPLOYEE}} \\
+    \hline
+    \pk{EmployeeID} & EmployeeName & EmpDeptID (FK) & HireYear \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\scriptsize
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{4}{|c|}{\textbf{COURSE}} \\
+    \hline
+    \pk{CourseID} & CourseName & CourseDeptID (FK) & Hours \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\small
+\begin{tabular}{|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \multicolumn{3}{|c|}{\textbf{TRAINING}} \\
+    \hline
+    \pk{EmployeeID} (FK) & \pk{CourseID} (FK) & Result \\
+    \hline
+\end{tabular}
+\end{center}
+
+\textbf{FD diagram ใต้ตารางที่ควรวาดก่อนแก้ 3NF:}
+\begin{center}
+\begin{tikzpicture}
+    \node[fdcell, fill=cyan!15] (eid) at (0,1.8) {\pk{EmployeeID}};
+    \node[fdcell, right=0cm of eid] (ename) {EmployeeName};
+    \node[fdcell, right=0cm of ename] (edept) {EmpDeptID};
+    \node[fdcell, right=0cm of edept] (edeptn) {EmpDeptName};
+    \node[fdcell, right=0cm of edeptn] (hire) {HireYear};
+
+    \draw[fdarrow] (eid.south) -- ++(0,-0.35) -| (edept.south);
+    \draw[fdarrow] (edept.south) -- ++(0,-0.75) -| (edeptn.south)
+        node[pos=0.25, below, fdnote]{transitive dependency};
+
+    \node[fdcell, fill=cyan!15] (cid) at (0,-1.9) {\pk{CourseID}};
+    \node[fdcell, right=0cm of cid] (cname) {CourseName};
+    \node[fdcell, right=0cm of cname] (cdept) {CourseDeptID};
+    \node[fdcell, right=0cm of cdept] (cdeptn) {CourseDeptName};
+    \node[fdcell, right=0cm of cdeptn] (hrs) {Hours};
+
+    \draw[fdarrow] (cid.south) -- ++(0,-0.35) -| (cdept.south);
+    \draw[fdarrow] (cdept.south) -- ++(0,-0.75) -| (cdeptn.south)
+        node[pos=0.25, below, fdnote]{transitive dependency};
+\end{tikzpicture}
+\end{center}
+\noindent\textit{แก้ 3NF โดยแยก \schema{DeptID -> DeptName} ออกเป็น \schema{DEPARTMENT} แล้วเก็บเฉพาะ DeptID เป็น FK ใน \schema{EMPLOYEE} และ \schema{COURSE}}
+
+\textbf{Mapping FK:}
+\begin{itemize}
+    \item \schema{EMPLOYEE.EmpDeptID} อ้างถึง \schema{DEPARTMENT.DeptID}
+    \item \schema{COURSE.CourseDeptID} อ้างถึง \schema{DEPARTMENT.DeptID}
+    \item \schema{TRAINING.EmployeeID} อ้างถึง \schema{EMPLOYEE.EmployeeID}
+    \item \schema{TRAINING.CourseID} อ้างถึง \schema{COURSE.CourseID}
+\end{itemize}
+
+\textbf{ทำไมต้องมี DEPARTMENT ตารางเดียว?}\\
+เพราะทั้งแผนกของพนักงานและแผนกเจ้าของ course ต่างก็เป็น department เหมือนกัน ถ้าเก็บชื่อแผนกซ้ำในหลายที่ เช่น
+\begin{itemize}
+    \item \schema{EmpDeptName} ใน \schema{EMPLOYEE}
+    \item \schema{CourseDeptName} ใน \schema{COURSE}
+\end{itemize}
+เวลาเปลี่ยนชื่อแผนก IT เป็น Information Technology ต้องไล่แก้หลายที่ ทำให้เกิด update anomaly
+
+\textbf{ประโยคเต็มแบบส่งข้อสอบ:}\\
+``หลังแก้ 2NF แล้วยังไม่ผ่าน 3NF เนื่องจากมี non-key determinant คือ \schema{EmpDeptID} และ \schema{CourseDeptID} ที่กำหนดชื่อแผนกได้ จึงเกิด transitive dependency จาก key ไปยัง DeptName ผ่าน DeptID ต้องแยก \schema{DEPARTMENT(\pk{DeptID}, DeptName)} ออกมา และเก็บเฉพาะ DeptID เป็น FK ใน \schema{EMPLOYEE} และ \schema{COURSE}''
+
+\newpage
+\section*{ตารางสรุปการให้คะแนนแบบข้อสอบ}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{3.0cm}|p{10.8cm}|}
+    \hline
+    \rowcolor{gray!20}
+    \textbf{หัวข้อ} & \textbf{สิ่งที่ต้องมีเพื่อเอาคะแนน} \\
+    \hline
+    1NF (3 คะแนน) & บอกว่าไม่ผ่านเพราะ non-atomic/repeating group, แสดงตารางที่แตก row หรือ child table, ระบุ PK/FK \\
+    \hline
+    2NF (6 คะแนน) & บอก key ของ relation ที่เป็น composite, ชี้ partial dependency ให้ถูก, แยก relation โดยย้าย attribute ไปอยู่กับ determinant ที่ถูกต้อง, เหลือตารางกลางเฉพาะ attribute ที่ขึ้นกับ key ทั้งก้อน \\
+    \hline
+    3NF (7 คะแนน) & ชี้ transitive dependency ให้ถูก, แยกตาราง lookup/master เช่น DEPARTMENT, CLIENT, MANAGER, เก็บ FK ในตารางเดิม, ระบุ schema สุดท้ายครบ \\
+    \hline
+\end{tabular}
+\end{center}
+
+\subsection*{Checklist ก่อนตอบว่า ``ผ่าน''}
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item มีช่องไหนเก็บหลายค่าไหม? ถ้ามี ยังไม่ผ่าน 1NF
+    \item มี composite key ไหม? ถ้ามี ให้ดูทุก non-prime attribute ว่าขึ้นกับ key ทั้งก้อนหรือแค่บางส่วน
+    \item มีรหัสกับชื่อที่คู่กันไหม เช่น \schema{DeptID, DeptName}, \schema{ClientID, ClientName}, \schema{ManagerID, ManagerName}? ถ้ามี ให้สงสัย 3NF
+    \item ตารางกลาง many-to-many เช่น \schema{TRAINING(EmployeeID, CourseID, ...)} ควรเก็บเฉพาะข้อมูลของ relationship เช่น \schema{Result, Grade, DateCompleted} ไม่ควรเก็บ \schema{CourseName}
+    \item ถ้าแยกตารางแล้ว ต้องไม่ทำข้อมูลหาย: สิ่งที่ถูกลบออกจากตารางหนึ่งต้องไปอยู่ในตารางใหม่ที่มี key ชัดเจน
+\end{enumerate}
+
+\section*{แบบฝึกเพิ่ม: จับให้ได้ว่าแยกถึงระดับไหน}
+
+\subsection*{Drill 1}
+\schema{ORDER\_LINE(OrderID, ProductID, ProductName,}\\
+\schema{CategoryID, CategoryName, Qty, UnitPrice)}\\
+PK = \schema{\{OrderID, ProductID\}}\\
+FDs:
+\begin{itemize}
+    \item \schema{ProductID} \fd \schema{ProductName, CategoryID, UnitPrice}
+    \item \schema{CategoryID} \fd \schema{CategoryName}
+    \item \schema{\{OrderID, ProductID\}} \fd \schema{Qty}
+\end{itemize}
+
+\textbf{ถาม:} อยู่ใน NF สูงสุดระดับใด? แก้เป็น 3NF
+\vspace{3.8cm}
+
+\subsection*{Drill 2}
+\schema{STUDENT\_CLUB(StudentID, ClubID, StudentName, MajorID,}\\
+\schema{MajorName, ClubName, AdvisorID, AdvisorName, Role)}\\
+PK = \schema{\{StudentID, ClubID\}}\\
+FDs:
+\begin{itemize}
+    \item \schema{StudentID} \fd \schema{StudentName, MajorID}
+    \item \schema{MajorID} \fd \schema{MajorName}
+    \item \schema{ClubID} \fd \schema{ClubName, AdvisorID}
+    \item \schema{AdvisorID} \fd \schema{AdvisorName}
+    \item \schema{\{StudentID, ClubID\}} \fd \schema{Role}
+\end{itemize}
+
+\textbf{ถาม:} แยกเป็น 2NF และ 3NF
+\vspace{4.0cm}
+
+\newpage
+\section*{เฉลยแบบฝึกเพิ่ม}
+
+\subsection*{Drill 1 Answer}
+เดิมอยู่ใน \textbf{1NF เท่านั้น} เพราะมี composite key และมี partial dependency:
+\[
+\schema{ProductID} \rightarrow \schema{ProductName, CategoryID, UnitPrice}
+\]
+จึงไม่ผ่าน 2NF และยังมี transitive dependency:
+\[
+\schema{ProductID} \rightarrow \schema{CategoryID} \rightarrow \schema{CategoryName}
+\]
+
+\textbf{3NF result:}
+\begin{itemize}
+    \item \schema{ORDER\_LINE(\pk{OrderID}, \pk{ProductID} (FK), Qty)}
+    \item \schema{PRODUCT(\pk{ProductID}, ProductName, CategoryID (FK), UnitPrice)}
+    \item \schema{CATEGORY(\pk{CategoryID}, CategoryName)}
+\end{itemize}
+
+\subsection*{Drill 2 Answer}
+เดิมอยู่ใน \textbf{1NF เท่านั้น} เพราะมี partial dependency จากส่วนหนึ่งของ composite key:
+\begin{itemize}
+    \item \schema{StudentID} \fd \schema{StudentName, MajorID}
+    \item \schema{ClubID} \fd \schema{ClubName, AdvisorID}
+\end{itemize}
+
+\textbf{2NF result:}
+\begin{itemize}
+    \item \schema{STUDENT\_2NF(\pk{StudentID}, StudentName, MajorID, MajorName)}
+    \item \schema{CLUB\_2NF(\pk{ClubID}, ClubName, AdvisorID, AdvisorName)}
+    \item \schema{MEMBERSHIP(\pk{StudentID} (FK), \pk{ClubID} (FK), Role)}
+\end{itemize}
+
+\textbf{ยังไม่ผ่าน 3NF} เพราะมี transitive dependency:
+\begin{itemize}
+    \item \schema{StudentID} \fd \schema{MajorID} \fd \schema{MajorName}
+    \item \schema{ClubID} \fd \schema{AdvisorID} \fd \schema{AdvisorName}
+\end{itemize}
+
+\textbf{3NF result:}
+\begin{itemize}
+    \item \schema{STUDENT(\pk{StudentID}, StudentName, MajorID (FK))}
+    \item \schema{MAJOR(\pk{MajorID}, MajorName)}
+    \item \schema{CLUB(\pk{ClubID}, ClubName, AdvisorID (FK))}
+    \item \schema{ADVISOR(\pk{AdvisorID}, AdvisorName)}
+    \item \schema{MEMBERSHIP(\pk{StudentID} (FK), \pk{ClubID} (FK), Role)}
+\end{itemize}
+
+\newpage
+\section*{หน้าท้าย: ตารางข้อมูลหลังเปลี่ยนแปลงเป็น 3NF}
+หน้านี้แสดงตัวอย่างข้อมูลจริงหลัง Normalize จากโจทย์ EMPLOYEE/TRAINING แล้ว ตารางจะไม่เก็บข้อมูลซ้ำแบบเดิม และความสัมพันธ์จะถูกเชื่อมด้วย FK
+
+\subsection*{DEPARTMENT}
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\small
+\begin{tabular}{|c|l|}
+    \hline
+    \rowcolor{cyan!15}
+    \pk{DeptID} & DeptName \\
+    \hline
+    D01 & Engineering \\
+    D02 & IT \\
+    D03 & Data \\
+    \hline
+\end{tabular}
+\end{center}
+
+\subsection*{EMPLOYEE}
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\small
+\begin{tabular}{|c|l|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \pk{EmployeeID} & EmployeeName & EmpDeptID (FK) & HireYear \\
+    \hline
+    201 & Somchai & D01 & 2020 \\
+    202 & Suda & D02 & 2021 \\
+    203 & Anan & D01 & 2022 \\
+    204 & Malee & D03 & 2021 \\
+    \hline
+\end{tabular}
+\end{center}
+
+\subsection*{COURSE}
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\small
+\begin{tabular}{|c|l|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \pk{CourseID} & CourseName & CourseDeptID (FK) & Hours \\
+    \hline
+    T101 & Database & D01 & 10 \\
+    T102 & System Design & D01 & 8 \\
+    T103 & Web Dev & D02 & 6 \\
+    T105 & Network & D02 & 7 \\
+    \hline
+\end{tabular}
+\end{center}
+
+\subsection*{TRAINING}
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\small
+\begin{tabular}{|c|c|c|}
+    \hline
+    \rowcolor{cyan!15}
+    \pk{EmployeeID} (FK) & \pk{CourseID} (FK) & Result \\
+    \hline
+    201 & T101 & Pass \\
+    201 & T102 & Pass \\
+    202 & T103 & Pass \\
+    202 & T105 & Fail \\
+    203 & T101 & Pass \\
+    \hline
+\end{tabular}
+\end{center}
+
+\noindent\textbf{เช็กตัวเอง:} ถ้าต้องรู้ว่า \schema{T101} คือวิชาอะไร ให้ไปดูที่ \schema{COURSE}; ถ้าต้องรู้ว่า \schema{D01} คือแผนกอะไร ให้ไปดูที่ \schema{DEPARTMENT}; ตาราง \schema{TRAINING} เก็บเฉพาะเหตุการณ์การอบรมและผลลัพธ์เท่านั้น
+
+\newpage
+\section*{สรุปสั้นก่อนเข้าห้องสอบ}
+
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{1NF ดูที่ cell} ไม่ใช่ดูที่ dependency: ถ้ามีหลายค่าในช่องเดียวคือพัง
+    \item \textbf{2NF ดูที่ composite key} ถ้า key มีสองส่วน ให้ถามว่า non-key ตัวไหนขึ้นกับแค่ซ้ายหรือขวา
+    \item \textbf{3NF ดูที่ non-key กำหนด non-key} เห็นรหัสกับชื่อ เช่น DeptID/DeptName ให้ระวังทันที
+    \item \textbf{ตาราง relationship} เช่น ENROLL, TRAINING, ORDER\_LINE ควรมี key ของสองฝั่งและ attribute ของเหตุการณ์นั้น ไม่ใช่ชื่อ course/product/department
+    \item \textbf{ตอบให้ครบ PK/FK} เพราะโจทย์ Normalization มักให้คะแนน schema และความสัมพันธ์ ไม่ใช่แค่ชื่อ table
+\end{enumerate}
+
+\vspace{0.3cm}
+\noindent\textbf{Mantra:} ``หาคีย์ก่อน, เขียน FD ก่อน, ค่อยตัดสิน Normal Form'' ถ้าข้ามสองอย่างนี้ ข้อ 2 กับข้อ 3 จะพังต่อกันง่ายมาก
+
+\end{document}
