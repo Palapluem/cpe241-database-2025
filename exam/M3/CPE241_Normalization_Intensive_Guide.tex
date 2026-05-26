@@ -6,6 +6,7 @@
 \usepackage[margin=2.3cm]{geometry}
 \usepackage{enumitem}
 \usepackage[table]{xcolor}
+\usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage[normalem]{ulem}
@@ -115,6 +116,7 @@ Normalization ไม่ใช่การ ``แยกตารางให้ด
     \item ลากเส้นใต้จาก determinant ไป dependent attribute เช่น \schema{CourseID} $\rightarrow$ \schema{CourseName}
     \item ถ้า determinant เป็น composite key ให้ลากจาก key ทั้งก้อน หรือเขียน label \schema{\{A,B\} $\rightarrow$ C}
     \item เขียนกำกับสั้น ๆ ว่า \schema{partial dependency} หรือ \schema{transitive dependency} ถ้าเป็นจุดที่ทำให้ไม่ผ่าน NF
+    \item ในเฉลยควรวาดทั้ง \textbf{ก่อนแก้} เพื่อชี้ dependency ที่ผิด และ \textbf{หลังแก้} เพื่อชี้ว่า dependency นั้นถูกย้ายไปอยู่ในตารางที่ถูกต้องแล้ว
 \end{itemize}
 
 \newpage
@@ -274,7 +276,7 @@ Normalization ไม่ใช่การ ``แยกตารางให้ด
 \end{tabular}
 \end{center}
 
-\textbf{FD diagram ใต้ตารางที่ควรวาด:}
+\textbf{FD diagram หลังแก้ 1NF:}
 \begin{center}
 \begin{tikzpicture}
     \node[fdcell, fill=cyan!15] (eid) at (0,0) {\pk{EmployeeID}};
@@ -290,7 +292,7 @@ Normalization ไม่ใช่การ ``แยกตารางให้ด
     \node[font=\scriptsize] at ($(eid.north)!0.5!(cid.north)+(0,0.55)$) {PK = \{EmployeeID, CourseID\}};
 \end{tikzpicture}
 \end{center}
-\noindent\textit{หมายเหตุ: หลังแตกเป็น 1NF แล้ว ตารางนี้ยังมี partial dependency อยู่ จึงเป็นสะพานไปสู่ข้อ 2NF}
+\noindent\textit{อ่านรูปนี้ว่า: cell เป็น atomic แล้วจึงผ่าน 1NF แต่ยังเห็น \schema{CourseID -> CourseName, Hours} ซึ่งเป็น partial dependency ที่ต้องแก้ต่อใน 2NF}
 
 \begin{center}
 \renewcommand{\arraystretch}{1.18}
@@ -341,7 +343,7 @@ Normalization ไม่ใช่การ ``แยกตารางให้ด
 
 นี่คือ \textbf{Partial Dependency} เพราะ \schema{CourseID} เป็นเพียงส่วนหนึ่งของ key \schema{\{EmployeeID, CourseID\}} แต่ไปกำหนด non-prime attributes
 
-\textbf{แก้เป็น 2NF:}
+\textbf{แก้เป็น 2NF (คำตอบกลาง ยังไม่ใช่คำตอบสุดท้ายแบบ 3NF):}
 \begin{itemize}
     \item \schema{EMPLOYEE\_2NF(\pk{EmployeeID}, EmployeeName, EmpDeptID,}\\
     \schema{EmpDeptName, HireYear)}
@@ -349,6 +351,9 @@ Normalization ไม่ใช่การ ``แยกตารางให้ด
     \schema{CourseDeptName, Hours)}
     \item \schema{TRAINING\_2NF(\pk{EmployeeID} (FK), \pk{CourseID} (FK), Result)}
 \end{itemize}
+
+\noindent\textbf{ทำไม 2NF ยังมี \schema{EmpDeptName} และ \schema{CourseDeptName}?}\\
+เพราะ 2NF ตรวจเฉพาะ \textbf{partial dependency จาก composite key} เท่านั้น ตาราง \schema{EMPLOYEE\_2NF} และ \schema{COURSE\_2NF} มี PK ตัวเดียว จึงไม่มี partial dependency แล้ว แม้ยังมี transitive dependency เรื่องชื่อแผนกอยู่ก็ตาม จุดนี้ตั้งใจเหลือไว้ให้ข้อ 3NF แก้ต่อ
 
 \textbf{รูปตารางที่ควรวาดในคำตอบ:}
 \begin{center}
@@ -414,6 +419,50 @@ Normalization ไม่ใช่การ ``แยกตารางให้ด
 \end{center}
 \noindent\textit{แก้ 2NF โดยย้าย attribute ที่ขึ้นกับ \schema{CourseID} อย่างเดียวออกไปอยู่ใน \schema{COURSE\_2NF}\\
 และเหลือ \schema{Result} ไว้ใน \schema{TRAINING\_2NF}}
+
+\textbf{FD diagram หลังแก้ 2NF:}
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}
+    \node[font=\scriptsize\bfseries] at (4.4,1.95) {EMPLOYEE\_2NF};
+    \node[fdcell, fill=cyan!15] (e_id) at (0,1.2) {\pk{EmployeeID}};
+    \node[fdcell, right=0cm of e_id] (e_name) {EmployeeName};
+    \node[fdcell, right=0cm of e_name] (e_dept) {EmpDeptID};
+    \node[fdcell, right=0cm of e_dept] (e_deptn) {EmpDeptName};
+    \node[fdcell, right=0cm of e_deptn] (e_hire) {HireYear};
+
+    \draw[fdarrow] (e_id.south) -- ++(0,-0.35) -| (e_name.south);
+    \draw[fdarrow] (e_id.south) -- ++(0,-0.70) -| (e_dept.south);
+    \draw[fdarrow] (e_id.south) -- ++(0,-1.05) -| (e_hire.south);
+    \draw[fdarrow] (e_dept.south) -- ++(0,-1.40) -| (e_deptn.south)
+        node[pos=0.25, below, fdnote]{ยังเหลือ transitive};
+
+    \node[font=\scriptsize\bfseries] at (4.4,-1.55) {COURSE\_2NF};
+    \node[fdcell, fill=cyan!15] (c_id) at (0,-2.3) {\pk{CourseID}};
+    \node[fdcell, right=0cm of c_id] (c_name) {CourseName};
+    \node[fdcell, right=0cm of c_name] (c_dept) {CourseDeptID};
+    \node[fdcell, right=0cm of c_dept] (c_deptn) {CourseDeptName};
+    \node[fdcell, right=0cm of c_deptn] (c_hrs) {Hours};
+
+    \draw[fdarrow] (c_id.south) -- ++(0,-0.35) -| (c_name.south);
+    \draw[fdarrow] (c_id.south) -- ++(0,-0.70) -| (c_dept.south);
+    \draw[fdarrow] (c_id.south) -- ++(0,-1.05) -| (c_hrs.south);
+    \draw[fdarrow] (c_dept.south) -- ++(0,-1.40) -| (c_deptn.south)
+        node[pos=0.25, below, fdnote]{ยังเหลือ transitive};
+
+    \node[font=\scriptsize\bfseries] at (2.2,-5.05) {TRAINING\_2NF};
+    \node[fdcell, fill=cyan!15] (t_eid) at (0,-5.55) {\pk{EmployeeID}};
+    \node[fdcell, fill=cyan!15, right=0cm of t_eid] (t_cid) {\pk{CourseID}};
+    \node[fdcell, right=0cm of t_cid] (t_res) {Result};
+
+    \draw (t_eid.north) -- ++(0,0.35) -| (t_cid.north);
+    \node[font=\scriptsize] at ($(t_eid.north)!0.5!(t_cid.north)+(0,0.55)$) {PK};
+    \draw[fdarrow] ($(t_eid.south)!0.5!(t_cid.south)$) -- ++(0,-0.45) -| (t_res.south)
+        node[pos=0.25, below, fdnote]{full dependency};
+\end{tikzpicture}
+}
+\end{center}
+\noindent\textit{อ่านรูปนี้ว่า: partial dependency หายแล้ว เพราะข้อมูลของ course ถูกย้ายไปอยู่ใน \schema{COURSE\_2NF} และ \schema{TRAINING\_2NF} เหลือเฉพาะ \schema{Result} ที่ขึ้นกับ key ทั้งก้อน แต่ยังมี transitive dependency เรื่องชื่อแผนก จึงต้องแก้ต่อใน 3NF ดังนั้นคำตอบ 2NF นี้จึงต่อกับคำตอบ 3NF โดยตรง}
 
 \textbf{ทำไมเอา \schema{CourseName, CourseDeptID, Hours} ออกจาก TRAINING?}\\
 เพราะข้อมูลเหล่านี้เป็นคุณสมบัติของ course ไม่ใช่คุณสมบัติของ ``พนักงานคนนี้ลง course นี้'' ถ้า T101 คือ Database 10 ชั่วโมง ไม่ว่าจะพนักงานคนไหนลง T101 ก็ยังเป็น Database 10 ชั่วโมงเหมือนเดิม จึงต้องไปอยู่ใน \schema{COURSE\_2NF}
@@ -527,6 +576,47 @@ Normalization ไม่ใช่การ ``แยกตารางให้ด
 \end{tikzpicture}
 \end{center}
 \noindent\textit{แก้ 3NF โดยแยก \schema{DeptID -> DeptName} ออกเป็น \schema{DEPARTMENT} แล้วเก็บเฉพาะ DeptID เป็น FK ใน \schema{EMPLOYEE} และ \schema{COURSE}}
+
+\textbf{FD diagram หลังแก้ 3NF:}
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}
+    \node[font=\scriptsize\bfseries] at (2.2,1.95) {DEPARTMENT};
+    \node[fdcell, fill=cyan!15] (d_id) at (0,1.4) {\pk{DeptID}};
+    \node[fdcell, right=0cm of d_id] (d_name) {DeptName};
+    \draw[fdarrow] (d_id.south) -- ++(0,-0.35) -| (d_name.south);
+
+    \node[font=\scriptsize\bfseries] at (3.3,-0.55) {EMPLOYEE};
+    \node[fdcell, fill=cyan!15] (ne_id) at (0,-1.05) {\pk{EmployeeID}};
+    \node[fdcell, right=0cm of ne_id] (ne_name) {EmployeeName};
+    \node[fdcell, right=0cm of ne_name] (ne_dept) {EmpDeptID\\(FK)};
+    \node[fdcell, right=0cm of ne_dept] (ne_hire) {HireYear};
+    \draw[fdarrow] (ne_id.south) -- ++(0,-0.35) -| (ne_name.south);
+    \draw[fdarrow] (ne_id.south) -- ++(0,-0.70) -| (ne_dept.south);
+    \draw[fdarrow] (ne_id.south) -- ++(0,-1.05) -| (ne_hire.south);
+
+    \node[font=\scriptsize\bfseries] at (3.3,-3.65) {COURSE};
+    \node[fdcell, fill=cyan!15] (nc_id) at (0,-4.15) {\pk{CourseID}};
+    \node[fdcell, right=0cm of nc_id] (nc_name) {CourseName};
+    \node[fdcell, right=0cm of nc_name] (nc_dept) {CourseDeptID\\(FK)};
+    \node[fdcell, right=0cm of nc_dept] (nc_hrs) {Hours};
+    \draw[fdarrow] (nc_id.south) -- ++(0,-0.35) -| (nc_name.south);
+    \draw[fdarrow] (nc_id.south) -- ++(0,-0.70) -| (nc_dept.south);
+    \draw[fdarrow] (nc_id.south) -- ++(0,-1.05) -| (nc_hrs.south);
+
+    \node[font=\scriptsize\bfseries] at (2.2,-6.90) {TRAINING};
+    \node[fdcell, fill=cyan!15] (nt_eid) at (0,-7.25) {\pk{EmployeeID}\\(FK)};
+    \node[fdcell, fill=cyan!15, right=0cm of nt_eid] (nt_cid) {\pk{CourseID}\\(FK)};
+    \node[fdcell, right=0cm of nt_cid] (nt_res) {Result};
+    \draw (nt_eid.north) -- ++(0,0.35) -| (nt_cid.north);
+    \node[font=\scriptsize] at ($(nt_eid.north)!0.5!(nt_cid.north)+(0,0.55)$) {PK};
+    \draw[fdarrow] ($(nt_eid.south)!0.5!(nt_cid.south)$) -- ++(0,-0.45) -| (nt_res.south);
+
+    \node[font=\scriptsize, align=center] at (3.6,-8.65) {ทุก FD สำคัญมี determinant เป็น key ของตารางตัวเองแล้ว\\จึงไม่เหลือ partial/transitive dependency ที่ผิดกฎ};
+\end{tikzpicture}
+}
+\end{center}
+\noindent\textit{อ่านรูปนี้ว่า: \schema{DeptName} ถูกย้ายไปอยู่กับ \schema{DeptID} ใน \schema{DEPARTMENT} แล้ว ตาราง \schema{EMPLOYEE} และ \schema{COURSE} จึงเก็บแค่รหัสแผนกเป็น FK ไม่เก็บชื่อแผนกซ้ำ}
 
 \textbf{Mapping FK:}
 \begin{itemize}
