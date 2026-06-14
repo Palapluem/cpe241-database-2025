@@ -1,33 +1,48 @@
-# CPE241 Database Systems (1/2025)
+# CPE241 Database Systems 2025
 
-This repository contains materials for the **CPE241 Database Systems** course, semester 1/2025. It includes lab exercises, SQL scripts, and database design drafts.
+Course workspace for CPE241 Database Systems, semester 1/2025. It contains lab exercises, SQL scripts, database-design drafts, homework, exam material, lectures, and project work.
 
-## 📂 Project Structure
+## Structure
 
-- **[labs/](labs/)**
-    - **[PS01_Getting started/](labs/PS01_Getting%20started/)**: Draft designs and initial table creations for 12 scenarios.
-        - [Lab1_Draft_Designs.md](labs/PS01_Getting%20started/Lab1_Draft_Designs.md): Data requirements draft.
-        - [Lab1_IDR.sql](labs/PS01_Getting%20started/Lab1_IDR.sql): Initial Database schema (DDL).
-    - **[PS02_Simple Database Management/](labs/PS02_Simple%20Database%20Management/)**: Data manipulation and basic querying.
-        - [Lab2_Solutions.sql](labs/PS02_Simple%20Database%20Management/Lab2_Solutions.sql): Data insertion (DML) and SQL queries.
-    - **[PS03_ER Diagram Exercise and Modify Existing Database/](labs/PS03_ER%20Diagram%20Exercise%20and%20Modify%20Existing%20Database/)**: Schema evolution and constraints.
-        - [Lab3_Solutions.sql](labs/PS03_ER%20Diagram%20Exercise%20and%20Modify%20Existing%20Database/Lab3_Solutions.sql): Schema modification (ALTER TABLE).
-- **[lectures/](lectures/)**: Course lecture notes and slides.
+```text
+cpe241-database-2025/
+├── exam/       # Exam preparation and review material
+├── homework/   # Homework submissions and supporting projects
+├── labs/       # Lab exercises and SQL scripts
+├── lectures/   # Lecture material
+├── project/    # Course project work
+└── README.md
+```
 
-## 🚀 Getting Started
+## Lab Summary
 
-The SQL scripts are designed for **PostgreSQL**. To set up the database:
-1. Run `Lab1_IDR.sql` to create the tables.
-2. Run `Lab2_Solutions.sql` to populate data and test queries.
-3. Run `Lab3_Solutions.sql` to apply structural changes and constraints.
+- `labs/PS01_Getting started/` - initial requirements and schema drafting.
+- `labs/PS02_Simple Database Management/` - insert, select, update, delete, and basic query practice.
+- `labs/PS03_ER Diagram Exercise and Modify Existing Database/` - schema modification, constraints, and ER modeling practice.
 
-## 📝 Lab Summaries
+## How To Use On Another Machine
 
-### Lab 01: Identify Data Requirements
-Defining entities and relationships for various scenarios including Law Firm, Bank, Supermarket, etc.
+1. Clone the repository.
+2. Install PostgreSQL or use the database engine required by the specific assignment.
+3. Open the SQL script in the target lab folder.
+4. Run schema scripts before data manipulation scripts when a lab depends on previous setup.
 
-### Lab 02: Simple Database Management
-Focuses on `INSERT`, `SELECT` (Joins, Aggregations), `UPDATE`, and `DELETE` operations.
+Recommended order for early labs:
 
-### Lab 03: Schema Evolution
-Practicing `ALTER TABLE` to add/modify columns and implement integrity constraints like `UNIQUE`, `NOT NULL`, and `CHECK`.
+```text
+Lab1_IDR.sql
+Lab2_Solutions.sql
+Lab3_Solutions.sql
+```
+
+## Repository Policy
+
+- Track SQL scripts, design notes, diagrams, homework code, and final reports.
+- Keep local database dumps, generated caches, and IDE settings out of Git unless they are required deliverables.
+- Document any large/private dataset path in the relevant folder README instead of committing it.
+
+## Transfer Status
+
+This repository is ready to clone to a main machine.
+
+Last updated: 2026-06-14
